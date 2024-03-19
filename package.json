@@ -1,0 +1,33 @@
+{
+  "name": "@iyulab/llm-chat",
+  "description": "llm chat client",
+  "version": "0.0.1",
+  "author": {
+    "name": "iyulab",
+    "url": "https://www.iyulab.com"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@microsoft/signalr": "^8.0.0",
+    "lit": "^3.1.2"
+  },
+  "devDependencies": {
+    "@shoelace-style/shoelace": "^2.14.0",
+    "@types/node": "^20.11.27",
+    "marked": "^12.0.1",
+    "mobx": "^6.12.0",
+    "sass": "^1.72.0",
+    "sass-loader": "^14.1.1",
+    "typescript": "^5.4.2",
+    "vite": "^5.1.6",
+    "vite-plugin-dts": "^3.7.3"
+  }
+}

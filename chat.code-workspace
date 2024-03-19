@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "name": "REFERENCE",
+      "path": "../../data/chat-copilot/webapp"
+    },
+    {
+      "name": "LLM-CHAT",
+      "path": "."
+    }
+  ],
+}
