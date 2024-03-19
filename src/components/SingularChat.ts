@@ -1,7 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import './chat-view/ChatRoom';
+import './chat-room/ChatRoom';
 
 @customElement('singular-chat')
 export class SingularChat extends LitElement {

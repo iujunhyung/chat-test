@@ -4,7 +4,8 @@ import { observable, IObservableValue } from 'mobx';
 import { ChatStore } from '../store/ChatStore';
 import {
   ChatState,
-  IChatMessage 
+  IChatMessage,
+  HubConfig
 } from '../models';
 
 const enum Methods {
@@ -35,18 +36,18 @@ export class ChatHub {
 
   /** ==================== Field ==================== **/
 
-  constructor() {
-    this.setup(window.location.origin);
-  }
-
   /** ==================== Public Method ==================== **/
 
   /**
    * Setup SignalR connection
    * @param host - SignalR server host
    */
-  public setup = (host: string) => {
+  public setup = async (host: string, config: HubConfig) => {
+    if(this.connection) {
+      await this.stop(this.connection);
+    }
     this.connection = this.create(host);
+    console.log('hub setup', config);
     this.register(this.connection);
     this.start(this.connection);
   }
@@ -88,9 +89,6 @@ export class ChatHub {
 
   // SignalR connection creation
   private create = (host: string) => {
-    if(this.connection) {
-      this.stop(this.connection);
-    }
     const url = new URL(this.endpoint, host);
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(url.toString(), {

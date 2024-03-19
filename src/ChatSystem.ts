@@ -14,14 +14,20 @@ import type {
 export class ChatSystem {
   
   public static type: IObservableValue<SystemType> = observable.box<SystemType>('multiple');
+  public static defaultChatTitle: string = `@Generated ${Date.now().toLocaleString()}`;
   public static api: ChatAPI = new ChatAPI();
   public static hub: ChatHub = new ChatHub();
 
   public static setup(config: ChatConfig) {
-    const { type, host } = config;
-    this.type.set(type || 'multiple');
-    this.api.setup(host || `${window.location.origin}`);
-    this.hub.setup(host || `${window.location.origin}`);
+    const type = config.type || 'multiple';
+    const defaultChatTitle = config.defaultChatTitle || this.defaultChatTitle;
+    const host = config.host || `${window.location.origin}`;
+    const accessToken = config.accessToken;
+    const addCredential = config.addCredential;
+    this.type.set(type);
+    this.defaultChatTitle = defaultChatTitle;
+    this.api.setup(host, { accessToken, addCredential });
+    this.hub.setup(host, {  });
   }
 
   public static async getInfo() {
@@ -66,7 +72,7 @@ export class ChatSystem {
   }
 
   public static async createChat(title?: string) {
-    title ||= `@Generated ${Date.now()}`;
+    title ||= this.defaultChatTitle;
     const newChat = { title: title };
     const result = await this.api.createChat(newChat);
     return result;

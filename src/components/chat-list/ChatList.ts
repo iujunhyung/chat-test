@@ -1,19 +1,25 @@
 import { LitElement, css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
 import "./ChatSection";
 import "./ChatSectionItem";
 import { ChatSystem } from "../../ChatSystem";
 import type { IChatSession } from "../../models/Chat";
+import { autorun } from "mobx";
+import { ChatStore } from "../../store/ChatStore";
 
 @customElement('chat-list')
 export class ChatList extends LitElement {
 
-  @state() chats: IChatSession[] = [];
+  @state() selectedId?: string; 
 
+  @property({ type: Array }) sessions: IChatSession[] = [];
+  
   connectedCallback() {
     super.connectedCallback();
-    this.getAllChats();
+    autorun(() => {
+      this.selectedId = ChatStore.chatID.get();
+    });
   }
 
   render() {
@@ -38,34 +44,31 @@ export class ChatList extends LitElement {
     const oneYear = 365 * oneDay;
 
     const sections: Record<string, IChatSession[]> = {
-      '오늘': [],
-      '어제': [],
-      '일주일 전': [],
-      '일 년 전': [],
-      '그 이전': []
+      'Today': [], 'Yesterday': [], 'Last Week': [],
+      'Last Year': [], 'Over a Year Ago': []
     };
 
-    this.chats.forEach(chat => {
+    this.sessions.forEach(chat => {
       const chatDate = new Date(chat.createdOn);
       const diff = now.getTime() - chatDate.getTime();
 
       if (diff < oneDay) {
-        sections['오늘'].push(chat);
+        sections['Today'].push(chat);
       } else if (diff < 2 * oneDay) {
-        sections['어제'].push(chat);
+        sections['Yesterday'].push(chat);
       } else if (diff < oneWeek) {
-        sections['일주일 전'].push(chat);
+        sections['Last Week'].push(chat);
       } else if (diff < oneYear) {
-        sections['일 년 전'].push(chat);
+        sections['Last Year'].push(chat);
       } else {
-        sections['그 이전'].push(chat);
+        sections['Over a Year Ago'].push(chat);
       }
     });
 
-    return Object.entries(sections).map(([date, items]) => {
+    return Object.entries(sections).map(([label, items]) => {
       if (items.length === 0) return nothing;
       return html`
-        <chat-section .label=${date}>
+        <chat-section .label=${label}>
           ${this.renderSectionItems(items)}
         </chat-section>
       `;
@@ -74,8 +77,10 @@ export class ChatList extends LitElement {
 
   private renderSectionItems(items: IChatSession[]) {
     return items.map((item) => {
+      const selected = this.selectedId === item.id;
       return html`
         <chat-section-item
+          ?selected=${selected}
           .item=${item}
           @click=${() => this.loadChat(item)}
         ></chat-section-item>
@@ -85,16 +90,6 @@ export class ChatList extends LitElement {
 
   private async loadChat(session: IChatSession) {
     await ChatSystem.loadChat(session);
-  }
-
-  private async getAllChats() {
-    const chats = await ChatSystem.getAllChats();
-    if(chats && chats.length > 0) {
-      this.chats = chats;
-    } else {
-      await ChatSystem.createChat();
-      this.getAllChats();
-    }
   }
 
   static styles = css`

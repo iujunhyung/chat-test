@@ -6,11 +6,8 @@ import type { IChatSession } from "../../models/Chat";
 @customElement('chat-section-item')
 export class ChatSectionItem extends LitElement {
 
-  @property({ type: Object })
-  item?: IChatSession;
-
-  @property({ type: Boolean })
-  selected: boolean = false;
+  @property({ type: Object }) item?: IChatSession;
+  @property({ type: Boolean }) selected: boolean = false;
 
   render() {
     return html`

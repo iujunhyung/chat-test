@@ -13,17 +13,16 @@ import { ChatSystem } from "./ChatSystem";
 export class LLMChat extends LitElement {
 
   @state() ready: boolean = false;
+
   @property({ type: String }) type: SystemType = 'multiple';
+  @property({ type: String }) host: string = window.location.host;
+  @property({ type: String }) accessToken?: string;
+  @property({ type: Boolean }) addCredential: boolean = false;
 
-  connectedCallback() {
-    super.connectedCallback();
-
-    autorun(() => {
-      this.ready = ChatSystem.hub.ready.get();
-    });
-    autorun(() => {
-      this.type = ChatSystem.type.get();
-    });
+  protected async firstUpdated(_changedProperties: any) {
+    super.firstUpdated(_changedProperties);
+    await this.updateComplete;
+    this.init();
   }
 
   render() {
@@ -48,6 +47,22 @@ export class LLMChat extends LitElement {
     return html`
       <div>Unknown chat type</div>
     `;
+  }
+
+  private async init() {
+    ChatSystem.setup({
+      type: this.type,
+      host: this.host,
+      accessToken: this.accessToken,
+      addCredential: this.addCredential
+    });
+
+    autorun(() => {
+      this.ready = ChatSystem.hub.ready.get();
+    });
+    autorun(() => {
+      this.type = ChatSystem.type.get();
+    });
   }
 
   static styles = css`

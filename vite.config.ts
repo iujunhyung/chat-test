@@ -18,6 +18,8 @@ export default defineConfig({
       external: [
         /^lit*/,
         "@microsoft/signalr",
+        "mobx",
+        "marked",
       ],
       output: {
         chunkFileNames: 'chunks/[name]-[hash].js',

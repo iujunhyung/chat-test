@@ -26,9 +26,9 @@ export class ChatSection extends LitElement {
     }
 
     label {
-      font-size: 18px;
-      line-height: 24px;
-      font-weight: bold;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
     }
   `;
 }

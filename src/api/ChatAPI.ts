@@ -7,7 +7,8 @@ import type {
   IChatMessage,
   ICreateChatSessionResponse,
   IChatParticipant,
-  ChatArchive
+  ChatArchive,
+  APIConfig
 } from "../models";
 import { ChatMessageType } from "../models/Chat";
 
@@ -17,13 +18,17 @@ export class ChatAPI {
   /** ==================== Field ==================== **/
   
   private host: string = window.location.origin;
+  private accessToken?: string;
+  private addCredential: boolean = false;
 
   /** ==================== Field ==================== **/
 
   /** ==================== Public Method ==================== **/
 
-  public setup = (host: string) => {
+  public setup = (host:string, config: APIConfig) => {
     this.host = host;
+    this.accessToken = config.accessToken;
+    this.addCredential = config.addCredential || false;
   }
 
   public async getInfo() {
@@ -131,13 +136,18 @@ export class ChatAPI {
   }
 
   private request = async <T>(method: HTTPMethod, url: string, body?: any): Promise<T> => {
-    if(!this.host) throw new Error('Host not set');
     try {
       const request = new URL(url, this.host);
       const headers = new Headers();
       const content = body ? JSON.stringify(body) : undefined;
       if(content) {
         headers.set('Content-Type', 'application/json');
+      }
+      if(this.accessToken) {
+        headers.set('Authorization', `Bearer ${this.accessToken}`);
+      }
+      if(this.addCredential) {
+        headers.set('credentials', 'include');
       }
       const response = await fetch(request, {
         method,
