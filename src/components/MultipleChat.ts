@@ -1,24 +1,18 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { autorun } from "mobx";
 
 import './chat-list/ChatList';
 import './chat-room/ChatRoom';
-
-import type { IChatSession } from "../models/Chat";
-import { ChatSystem } from "../ChatSystem";
-import { autorun } from "mobx";
-import { ChatStore } from "../store/ChatStore";
+import { ChatStore } from "../system";
 
 @customElement('multiple-chat')
 export class MultipleChat extends LitElement {
 
   @state() label: string = "Chat Room";
-  @state() sessions: IChatSession[] = [];
 
   connectedCallback() {
     super.connectedCallback();
-    this.getAllSession();
-
     autorun(() => {
       this.label = ChatStore.title.get();
     });
@@ -27,9 +21,7 @@ export class MultipleChat extends LitElement {
   render() {
     return html`
       <div class="panel">
-        <chat-list
-          .sessions=${this.sessions}
-        ></chat-list>
+        <chat-list></chat-list>
       </div>
       <div class="main">
         <div class="header">
@@ -43,30 +35,21 @@ export class MultipleChat extends LitElement {
     `;
   }
 
-  private async getAllSession() {
-    const sessions = await ChatSystem.getAllChats();
-    if(sessions && sessions.length > 0) {
-      this.sessions = sessions;
-      await ChatSystem.loadChat(sessions[0]);
-    } else {
-      await ChatSystem.createChat();
-      await this.getAllSession();
-    }
-  }
-
   private async toggleTheme() {
     document.documentElement.classList.toggle("sl-theme-dark");
   }
 
   static styles = css`
     :host {
-      container-name: chat-container;
+      container-name: multiple-chat;
       container-type: inline-size;
       position: relative;
       width: 100%;
       height: 100%;
       display: flex;
       flex-direction: row;
+
+      --header-height: 50px;
     }
 
     .panel {
@@ -83,7 +66,7 @@ export class MultipleChat extends LitElement {
       .header {
         position: relative;
         width: 100%;
-        height: 50px;
+        height: var(--header-height);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -97,11 +80,11 @@ export class MultipleChat extends LitElement {
       chat-room {
         position: relative;
         width: 100%;
-        height: calc(100% - 50px);
+        height: calc(100% - var(--header-height));
       }
     }
 
-    @container chat-container (max-width: 768px) {
+    @container multiple-chat (max-width: 768px) {
       .panel {
         display: none;
         position: absolute;
@@ -111,6 +94,14 @@ export class MultipleChat extends LitElement {
 
       .main {
         width: 100%;
+      }
+    }
+
+    @container multiple-chat (max-width: 1100px) {
+      .main {
+        chat-room {
+          --column-width: 100%;
+        }
       }
     }
   `;

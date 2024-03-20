@@ -1,3 +1,2 @@
 export * from './LLMChat';
-export * from './ChatTest';
-export * from './ChatSystem';
+export * from './system/ChatSystem';

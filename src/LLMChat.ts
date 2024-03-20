@@ -3,11 +3,11 @@ import { customElement, property, state } from "lit/decorators.js";
 import { autorun } from "mobx";
 import type { SystemType } from "./models/System";
 
-import "./components/loading/InitialLoader";
+import "./components/loader/InitialLoader";
 import "./components/SingularChat";
 import "./components/MultipleChat";
 
-import { ChatSystem } from "./ChatSystem";
+import { ChatSystem } from "./system/ChatSystem";
 
 @customElement('llm-chat')
 export class LLMChat extends LitElement {
@@ -16,8 +16,8 @@ export class LLMChat extends LitElement {
 
   @property({ type: String }) type: SystemType = 'multiple';
   @property({ type: String }) host: string = window.location.host;
-  @property({ type: String }) accessToken?: string;
-  @property({ type: Boolean }) addCredential: boolean = false;
+  @property({ type: String }) apiAccessToken?: string;
+  @property({ type: Boolean }) apiAddCredential: boolean = false;
 
   protected async firstUpdated(_changedProperties: any) {
     super.firstUpdated(_changedProperties);
@@ -53,8 +53,8 @@ export class LLMChat extends LitElement {
     ChatSystem.setup({
       type: this.type,
       host: this.host,
-      accessToken: this.accessToken,
-      addCredential: this.addCredential
+      apiAccessToken: this.apiAccessToken,
+      apiAddCredential: this.apiAddCredential
     });
 
     autorun(() => {

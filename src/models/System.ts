@@ -11,32 +11,34 @@ export interface ChatConfig extends APIConfig, HubConfig {
   type?: SystemType;
 
   /**
-   * The host of the chat system.
-   * @default 'current window location origin'
-   */
-  host?: string;
-
-  /**
    * The default title for the chat.
    * @default 'Generated Current Date Time'
    */
   defaultChatTitle?: string;
 }
 
-export interface APIConfig {
+export interface APIConfig extends SharedConfig {
   /**
    * The access token for the chat system.
    * @default 'undefined'
    */
-  accessToken?: string;
+  apiAccessToken?: string;
 
   /**
    * Indicates whether to add credentials to the chat system.
    * @default false
    */
-  addCredential?: boolean;
+  apiAddCredential?: boolean;
 }
 
-export interface HubConfig {
+export interface HubConfig extends SharedConfig {
   
+}
+
+export interface SharedConfig {
+  /**
+   * The host of the chat system.
+   * @default 'current window location origin'
+   */
+  host: string;
 }

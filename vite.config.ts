@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
+  root: 'test',
+  envDir: __dirname,
   build: {
     minify: false,
     outDir: 'dist',
@@ -28,7 +30,7 @@ export default defineConfig({
   },
   plugins: [
     dts({
-      include: [ 'src/**/*' ]
+      include: 'src/**/*',
     })
   ]
 });

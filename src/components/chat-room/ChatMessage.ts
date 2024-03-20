@@ -1,55 +1,86 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-
 import { marked } from "marked";
 
 import { 
-  type IChatMessage,
   ChatMessageType,
   AuthorRoles 
 } from "../../models/Chat";
-
-type SenderRole = 'bot' | 'user' | 'participant' | 'unknown';
+import { ChatStore } from "../../system";
 
 @customElement('chat-message')
 export class ChatMessage extends LitElement {
 
-  @state() role: SenderRole = 'unknown';
-  @state() user?: string;
-  @state() time?: string;
-  @state() content?: string;
+  @state() innerTimestamp: string = 'unknown';
+  @state() innerContent?: string;
 
-  @property({ type: Object }) value?: IChatMessage;
+  @property({ type: String }) messageId?: string;
+  @property({ type: Number }) type?: ChatMessageType;
+  @property({ type: Number }) authorRole?: AuthorRoles;
+  @property({ type: String }) userName?: string;
+  @property({ type: Number }) timestamp?: number;
+  @property({ type: String }) content?: string;
 
-  protected async updated(_changedProperties: any) {
-    super.updated(_changedProperties);
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if(this.messageId) {
+      ChatStore.elements.delete(this.messageId);
+    }
+  }
+
+  protected async firstUpdated(changedProperties: any) {
+    super.firstUpdated(changedProperties);
+    await this.updateComplete;
+    if(this.messageId && this.authorRole === AuthorRoles.Bot) {
+      ChatStore.elements.set(this.messageId, this);
+    }
+  }
+
+  protected async updated(changedProperties: any) {
+    super.updated(changedProperties);
     await this.updateComplete;
 
-    if(_changedProperties.has('value') && this.value) {
-      const { authorRole, timestamp, userName, type, content } = this.value;
-      this.user = userName;
-      this.role = this.parseRole(authorRole);
-      this.time = this.parseTime(timestamp);
-      this.content = await this.parseContent(type, content);
+    if(changedProperties.has('timestamp') && this.timestamp) {
+      this.innerTimestamp = this.parseTimestamp(this.timestamp);
+    }
+    if(changedProperties.has('content') && this.content
+      && this.type !== undefined && this.type !== null) {
+      this.innerContent = await this.parseContent(this.type, this.content);
     }
   }
 
   render() {
     return html`
-      <div class="prefix">
-        <img class="avatar" src=${this.role} alt="avatar" />
-        <label class="name">${this.user}</label>
+      <div class="avatar">
+        ${this.renderAvatar()}
       </div>
       <div class="main">
+        <div class="header">
+          <label class="name">${this.userName}</label>
+        </div>
         <div class="content">
-          ${unsafeHTML(this.content)}
+          ${unsafeHTML(this.innerContent)}
         </div>
         <div class="footer">
           <div class="button">Copy</div>
-          <label class="time">${this.time}</label>
+          <label class="time">${this.innerTimestamp}</label>
         </div>
       </div>
+    `;
+  }
+
+  private renderAvatar() {
+    const avatar = this.authorRole === AuthorRoles.Bot 
+    ? 'bot' 
+    : this.authorRole === AuthorRoles.User
+    ? 'user'
+    : this.authorRole === AuthorRoles.Participant
+    ? 'participant'
+    : 'unknown';
+    
+    return html`
+      <img src=${avatar} alt="avatar">
     `;
   }
 
@@ -66,7 +97,7 @@ export class ChatMessage extends LitElement {
     }
   }
 
-  private parseTime(timestamp?: number) {
+  private parseTimestamp(timestamp: number) {
     if(timestamp) {
       const date = new Date(timestamp);
       const result = date.toLocaleTimeString('en-US', {
@@ -79,49 +110,41 @@ export class ChatMessage extends LitElement {
     }
   }
 
-  private parseRole(role?: AuthorRoles): SenderRole {
-    if(role === AuthorRoles.Bot) {
-      return 'bot';
-    } else if(role === AuthorRoles.User) {
-      return 'user';
-    } else if(role === AuthorRoles.Participant) {
-      return 'participant';
-    } else {
-      return 'unknown';
-    }
-  }
-
   static styles = css`
     :host {
+      width: 100%;
       display: flex;
       flex-direction: row;
       align-items: flex-start;
       gap: 20px;
     }
 
-    .prefix {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: red;
-      }
-
-      .name {
-        font-size: 12px;
-        font-weight: bold;
-        line-height: 18px;
-      }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: red;
+      overflow: hidden;
     }
 
     .main {
+      width: calc(100% - 40px);
       display: flex;
       flex-direction: column;
       gap: 10px;
+
+      .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        .name {
+          font-size: 12px;
+          font-weight: bold;
+          line-height: 18px;
+        }
+      }
 
       .content {
         font-size: 14px;

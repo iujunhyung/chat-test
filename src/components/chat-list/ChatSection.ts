@@ -20,7 +20,7 @@ export class ChatSection extends LitElement {
       flex-direction: column;
       gap: 5px;
       box-sizing: border-box;
-      padding: 10px;
+      padding: 12px;
       
       border: 1px solid black;
     }
@@ -29,6 +29,7 @@ export class ChatSection extends LitElement {
       font-size: 12px;
       line-height: 16px;
       font-weight: 500;
+      padding: 0px 5px;
     }
   `;
 }

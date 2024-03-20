@@ -1,22 +1,22 @@
 import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
+import { autorun } from "mobx";
+
+import type { IChatSession } from "../../models/Chat";
 
 import "./ChatSection";
 import "./ChatSectionItem";
-import { ChatSystem } from "../../ChatSystem";
-import type { IChatSession } from "../../models/Chat";
-import { autorun } from "mobx";
-import { ChatStore } from "../../store/ChatStore";
+import { ChatSystem, ChatStore } from "../../system";
 
 @customElement('chat-list')
 export class ChatList extends LitElement {
 
   @state() selectedId?: string; 
-
-  @property({ type: Array }) sessions: IChatSession[] = [];
+  @state() chats: IChatSession[] = [];
   
   connectedCallback() {
     super.connectedCallback();
+    this.getAllChats();
     autorun(() => {
       this.selectedId = ChatStore.chatID.get();
     });
@@ -26,7 +26,7 @@ export class ChatList extends LitElement {
     return html`
       <div class="header">
         <input type="text" placeholder="Search" />
-        <button>NEW +</button>
+        <button @click=${this.createChat}>NEW +</button>
       </div>
       <div class="body">
         ${this.renderSections()}
@@ -48,7 +48,7 @@ export class ChatList extends LitElement {
       'Last Year': [], 'Over a Year Ago': []
     };
 
-    this.sessions.forEach(chat => {
+    this.chats.forEach(chat => {
       const chatDate = new Date(chat.createdOn);
       const diff = now.getTime() - chatDate.getTime();
 
@@ -88,8 +88,25 @@ export class ChatList extends LitElement {
     });
   }
 
+  private async getAllChats() {
+    const chats = await ChatSystem.getAllChats();
+    if(chats && chats.length > 0) {
+      this.chats = chats;
+      await ChatSystem.loadChat(chats[0]);
+    } else {
+      await ChatSystem.createChat();
+      await this.getAllChats();
+    }
+  }
+
   private async loadChat(session: IChatSession) {
     await ChatSystem.loadChat(session);
+  }
+
+  private async createChat() {
+    const newChat = await ChatSystem.createChat();
+    this.chats = [newChat.chatSession, ...this.chats];
+    await ChatSystem.loadChat(newChat.chatSession);
   }
 
   static styles = css`
@@ -101,7 +118,9 @@ export class ChatList extends LitElement {
       flex-direction: column;
 
       --header-height: 50px;
-      --footer-height: 50px;
+      --footer-height: 40px;
+      --header-padding: 12px;
+      --footer-padding: 12px;
 
       box-sizing: border-box;
       border: 1px solid black;
@@ -112,6 +131,7 @@ export class ChatList extends LitElement {
       width: 100%;
       height: var(--header-height);
       box-sizing: border-box;
+      padding: var(--header-padding);
 
       border: 1px solid black;
     }
@@ -120,11 +140,18 @@ export class ChatList extends LitElement {
       position: relative;
       width: 100%;
       height: calc(100% - (var(--header-height) + var(--footer-height)));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       overflow-x: hidden;
       overflow-y: auto;
       box-sizing: border-box;
 
       border: 1px solid black;
+
+      &::-webkit-scrollbar {
+        width: 0px;
+      }
     }
 
     .footer {
@@ -132,6 +159,7 @@ export class ChatList extends LitElement {
       width: 100%;
       height: var(--footer-height);
       box-sizing: border-box;
+      padding: var(--footer-padding);
 
       border: 1px solid black;
     }

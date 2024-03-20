@@ -13,7 +13,8 @@
   "types": "./src/index.d.ts",
   "scripts": {
     "start": "vite",
-    "build": "vite build"
+    "test": "jest",
+    "build": "tsc && vite build"
   },
   "dependencies": {
     "@microsoft/signalr": "^8.0.0",
@@ -23,7 +24,9 @@
   },
   "devDependencies": {
     "@shoelace-style/shoelace": "^2.14.0",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.30",
+    "jest": "^29.7.0",
     "sass": "^1.72.0",
     "sass-loader": "^14.1.1",
     "typescript": "^5.4.2",

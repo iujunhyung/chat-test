@@ -12,7 +12,7 @@ export class ChatSectionItem extends LitElement {
   render() {
     return html`
       <div class="item">
-        <label>${this.item?.title}</label>
+        ${this.item?.title}
       </div>
       <div class="button">
         <button>버튼</button>
@@ -24,42 +24,52 @@ export class ChatSectionItem extends LitElement {
     :host {
       position: relative;
       width: 100%;
-      height: 38px;
+      height: 36px;
       display: flex;
       flex-direction: row;
       align-items: center;
       box-sizing: border-box;
-      padding: 10px;
-
-      border: 1px solid black;
+      border-radius: 5px;
     }
 
     :host(:hover) {
       background-color: #f0f0f0;
+
+      .button {
+        display: block;
+      }
     }
 
     :host([selected]) {
       background-color: #e0e0e0;
-    }
 
-    .item {
-      width: 90%;
-      display: block;
-      
-      label {
-        font-size: 16px;
-        line-height: 24px;
-        font-weight: 400;
-        white-space: nowrap;
-        word-wrap: break-word;
-        text-overflow: ellipsis;
-        cursor: pointer;
+      .button {
+        display: block;
       }
     }
 
-    .button {
-      width: 10%;
+    .item {
+      position: relative;
+      width: 100%;
+      height: 20px;
       display: block;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 400;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0px 5px;
+      cursor: pointer;
+    }
+
+    .button {
+      position: absolute;
+      display: none;
+      right: 0;
+      top: 0;
+      width: 40px;
+      height: 100%;
     }
   `;
 }
