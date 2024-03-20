@@ -11,8 +11,10 @@ import { ChatSystem, ChatStore } from "../../system";
 @customElement('chat-list')
 export class ChatList extends LitElement {
 
+  @state() label: string = "Copilot";
   @state() selectedId?: string; 
   @state() chats: IChatSession[] = [];
+  @state() search: string = '';
   
   connectedCallback() {
     super.connectedCallback();
@@ -25,46 +27,28 @@ export class ChatList extends LitElement {
   render() {
     return html`
       <div class="header">
-        <input type="text" placeholder="Search" />
-        <button @click=${this.createChat}>NEW +</button>
+        <div class="control">
+          <span class="title">${this.label}</span>
+          <div class="flex"></div>
+          <button @click=${this.createChat}>NEW +</button>
+          <button>Delete All</button>
+        </div>
+        <div class="search">
+          <input type="text" placeholder="Search" 
+            @keydown=${this.searchChat}/>
+        </div>
       </div>
       <div class="body">
         ${this.renderSections()}
       </div>
       <div class="footer">
-        <button>Setting</button>
+        <button @click=${this.toggleTheme}>Global Setting</button>
       </div>
     `;
   }
 
   private renderSections() {
-    const now = new Date();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const oneWeek = 7 * oneDay;
-    const oneYear = 365 * oneDay;
-
-    const sections: Record<string, IChatSession[]> = {
-      'Today': [], 'Yesterday': [], 'Last Week': [],
-      'Last Year': [], 'Over a Year Ago': []
-    };
-
-    this.chats.forEach(chat => {
-      const chatDate = new Date(chat.createdOn);
-      const diff = now.getTime() - chatDate.getTime();
-
-      if (diff < oneDay) {
-        sections['Today'].push(chat);
-      } else if (diff < 2 * oneDay) {
-        sections['Yesterday'].push(chat);
-      } else if (diff < oneWeek) {
-        sections['Last Week'].push(chat);
-      } else if (diff < oneYear) {
-        sections['Last Year'].push(chat);
-      } else {
-        sections['Over a Year Ago'].push(chat);
-      }
-    });
-
+    const sections = this.filterChats();
     return Object.entries(sections).map(([label, items]) => {
       if (items.length === 0) return nothing;
       return html`
@@ -82,7 +66,6 @@ export class ChatList extends LitElement {
         <chat-section-item
           ?selected=${selected}
           .item=${item}
-          @click=${() => this.loadChat(item)}
         ></chat-section-item>
       `;
     });
@@ -99,14 +82,54 @@ export class ChatList extends LitElement {
     }
   }
 
-  private async loadChat(session: IChatSession) {
-    await ChatSystem.loadChat(session);
-  }
-
   private async createChat() {
     const newChat = await ChatSystem.createChat();
     this.chats = [newChat.chatSession, ...this.chats];
     await ChatSystem.loadChat(newChat.chatSession);
+  }
+
+  private filterChats() {
+    const now = new Date();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const oneWeek = 7 * oneDay;
+    const oneYear = 365 * oneDay;
+
+    const sections: Record<string, IChatSession[]> = {
+      'Today': [], 'Yesterday': [], 'Last Week': [],
+      'Last Year': [], 'Over a Year Ago': []
+    };
+
+    this.chats.forEach(chat => {
+      const title = chat.title.toLocaleLowerCase();
+      if(!title.includes(this.search)) return;
+      const chatDate = new Date(chat.createdOn);
+      const diff = now.getTime() - chatDate.getTime();
+
+      if (diff < oneDay) {
+        sections['Today'].push(chat);
+      } else if (diff < 2 * oneDay) {
+        sections['Yesterday'].push(chat);
+      } else if (diff < oneWeek) {
+        sections['Last Week'].push(chat);
+      } else if (diff < oneYear) {
+        sections['Last Year'].push(chat);
+      } else {
+        sections['Over a Year Ago'].push(chat);
+      }
+    });
+
+    return sections;
+  }
+
+  private async searchChat(event: KeyboardEvent) {
+    if(event.key === 'Enter') {
+      const target = event.target as HTMLInputElement;
+      this.search = target.value.toLocaleLowerCase();
+    }
+  }
+
+  private async toggleTheme() {
+    document.documentElement.classList.toggle("sl-theme-dark");
   }
 
   static styles = css`
@@ -116,8 +139,9 @@ export class ChatList extends LitElement {
       height: 100%;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
 
-      --header-height: 50px;
+      --header-height: 90px;
       --footer-height: 40px;
       --header-padding: 12px;
       --footer-padding: 12px;
@@ -130,10 +154,52 @@ export class ChatList extends LitElement {
       position: relative;
       width: 100%;
       height: var(--header-height);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       box-sizing: border-box;
       padding: var(--header-padding);
 
       border: 1px solid black;
+
+      .control {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 5px;
+
+        .title {
+          font-size: 20px;
+          line-height: 24px;
+          font-weight: 600;
+        }
+
+        .flex {
+          flex: 1;
+        }
+
+        button {
+        }
+      }
+
+      .search {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 5px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        border: 1px solid black;
+          
+        input {
+          flex: 1;
+          border: none;
+          outline: none;
+          background-color: transparent;
+        }
+      }
     }
 
     .body {
@@ -143,7 +209,6 @@ export class ChatList extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      overflow-x: hidden;
       overflow-y: auto;
       box-sizing: border-box;
 

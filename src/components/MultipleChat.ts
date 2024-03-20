@@ -1,48 +1,109 @@
 import { LitElement, css, html } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { autorun } from "mobx";
+import { customElement, query, state } from "lit/decorators.js";
 
 import './chat-list/ChatList';
+import './chat-room/ChatHeader';
 import './chat-room/ChatRoom';
-import { ChatStore } from "../system";
 
 @customElement('multiple-chat')
 export class MultipleChat extends LitElement {
+  private readonly observer = new ResizeObserver(() => {
+    this.handleResize();
+  });
 
-  @state() label: string = "Chat Room";
+  @state() screen: 'small' | 'medium' | 'large' = 'large';
+  @state() panelOpen = false;
+
+  @query('.panel') panel!: HTMLDivElement;
+  @query('.overlay') overlay!: HTMLDivElement;
+  @query('.main') main!: HTMLDivElement;
+  @query('chat-room') chatRoom!: HTMLElement;
 
   connectedCallback() {
     super.connectedCallback();
-    autorun(() => {
-      this.label = ChatStore.title.get();
-    });
+    this.observer.observe(this);
+  }
+
+  disconnectedCallback() {
+    this.observer.disconnect();
+    super.disconnectedCallback();
+  }
+
+  protected async updated(changedProperties: any) {
+    super.updated(changedProperties);
+    await this.updateComplete;
+    if (changedProperties.has('screen')) {
+      this.changeScreen();
+    }
+    if (changedProperties.has('panelOpen')) {
+      this.togglePanel();
+    }
   }
 
   render() {
     return html`
       <div class="panel">
         <chat-list></chat-list>
+        <button class="toggler"
+          @click=${() => this.panelOpen = !this.panelOpen}>
+          TT
+        </button>
       </div>
+      <div class="overlay"
+        @click=${() => this.panelOpen = false}
+      ></div>
       <div class="main">
-        <div class="header">
-          <button>Menu</button>
-          <label>${this.label}</label>
-          <button>Settings</button>
-          <button @click=${this.toggleTheme}>Theme</button>
-        </div>
+        <chat-header class="header">
+          <div slot="prefix"></div>
+          <div slot="suffix"></div>
+        </chat-header>
         <chat-room></chat-room>
       </div>
     `;
   }
 
-  private async toggleTheme() {
-    document.documentElement.classList.toggle("sl-theme-dark");
+  private handleResize = () => {
+    const width = this.clientWidth;
+    if(width < 768 && this.screen !== 'small') {
+      this.screen = 'small'; return;
+    } else if(width >= 768 && width < 1100 && this.screen !== 'medium') {
+      this.screen = 'medium'; return;
+    } else if(width >= 1100 && this.screen !== 'large') {
+      this.screen = 'large'; return;
+    }
+  }
+
+  private changeScreen = () => {
+    if (this.screen === 'small') {
+      this.panel.classList.add('small');
+      this.main.classList.add('small');
+      this.chatRoom.classList.add('medium');
+      if (this.panelOpen) this.panelOpen = false;
+    } else if (this.screen === 'medium') {
+      this.panel.classList.remove('small');
+      this.main.classList.remove('small');
+      this.chatRoom.classList.add('medium');
+      if (this.panelOpen) this.panelOpen = false;
+    } else {
+      this.panel.classList.remove('small');
+      this.main.classList.remove('small');
+      this.chatRoom.classList.remove('medium');
+      if (this.panelOpen) this.panelOpen = false;
+    }
+  }
+
+  private togglePanel = () => {
+    if (this.panelOpen) {
+      this.panel.classList.add('open');
+      this.overlay.classList.add('open');
+    } else {
+      this.panel.classList.remove('open');
+      this.overlay.classList.remove('open');
+    }
   }
 
   static styles = css`
     :host {
-      container-name: multiple-chat;
-      container-type: inline-size;
       position: relative;
       width: 100%;
       height: 100%;
@@ -56,6 +117,46 @@ export class MultipleChat extends LitElement {
       position: relative;
       width: 260px;
       height: 100%;
+      background-color: var(--sl-color-gray-50);
+      transition: width 0.2s ease-in-out;
+
+      .toggler {
+        display: none;
+        position: absolute;
+        z-index: 2;
+        top: 10px;
+        right: -52px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+    .panel.small {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      width: 0px;
+      
+      .toggler {
+        display: block;
+      }
+    }
+    .panel.small.open {
+      width: 260px;
+    }
+
+    .overlay {
+      display: none;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .overlay.open {
+      display: block;
     }
 
     .main {
@@ -63,17 +164,14 @@ export class MultipleChat extends LitElement {
       width: calc(100% - 260px);
       height: 100%;
 
+      &.small {
+        width: 100%;
+      }
+
       .header {
         position: relative;
         width: 100%;
         height: var(--header-height);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        box-sizing: border-box;
-        padding: 0 10px;
-
         border: 1px solid black;
       }
 
@@ -81,25 +179,8 @@ export class MultipleChat extends LitElement {
         position: relative;
         width: 100%;
         height: calc(100% - var(--header-height));
-      }
-    }
 
-    @container multiple-chat (max-width: 768px) {
-      .panel {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-
-      .main {
-        width: 100%;
-      }
-    }
-
-    @container multiple-chat (max-width: 1100px) {
-      .main {
-        chat-room {
+        &.medium {
           --column-width: 100%;
         }
       }

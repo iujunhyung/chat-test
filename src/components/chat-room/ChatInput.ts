@@ -81,7 +81,7 @@ export class ChatInput extends LitElement {
       align-items: flex-end;
       box-sizing: border-box;
 
-      border: 1px solid black;
+      border: 1px solid var(--sl-color-gray-400);
       padding: 10px;
       border-radius: 1rem;
     }
@@ -92,7 +92,6 @@ export class ChatInput extends LitElement {
       left: 10px;
       font-size: 12px;
       line-height: 18px;
-
     }
 
     textarea {
@@ -102,12 +101,13 @@ export class ChatInput extends LitElement {
       overflow-y: auto;
       -webkit-appearance: none;
       appearance: none;
-      /* border: none; */
+      border: none;
       outline: none;
       resize: none;
       font-size: 16px;
       line-height: 24px;
       padding: 0px;
+      background-color: transparent;
     }
   `;
 }

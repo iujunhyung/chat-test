@@ -48,6 +48,7 @@ export class ChatMessage extends LitElement {
       && this.type !== undefined && this.type !== null) {
       this.innerContent = await this.parseContent(this.type, this.content);
     }
+    this.dispatchEvent(new CustomEvent('render'));
   }
 
   render() {
@@ -151,7 +152,7 @@ export class ChatMessage extends LitElement {
         line-height: 20px;
         border-radius: 8px;
         padding: 10px;
-        background-color: #f8f9fa;
+        background-color: var(--sl-color-gray-50);
         border: 1px solid #f8f9fa;
       }
 

@@ -2,6 +2,7 @@ import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import type { IChatSession } from "../../models/Chat";
+import { ChatSystem } from "../../system/ChatSystem";
 
 @customElement('chat-section-item')
 export class ChatSectionItem extends LitElement {
@@ -11,13 +12,24 @@ export class ChatSectionItem extends LitElement {
 
   render() {
     return html`
-      <div class="item">
+      <div class="item"
+        @click=${() => this.loadChat()}>
         ${this.item?.title}
       </div>
       <div class="button">
-        <button>버튼</button>
+        <button @click=${this.deleteChat}>버튼</button>
       </div>
     `;
+  }
+
+  private async loadChat() {
+    if (!this.item) return;
+    await ChatSystem.loadChat(this.item);
+  }
+
+  private async deleteChat() {
+    if (!this.item?.id) return;
+    await ChatSystem.deleteChat(this.item.id);
   }
 
   static styles = css`
@@ -31,18 +43,14 @@ export class ChatSectionItem extends LitElement {
       box-sizing: border-box;
       border-radius: 5px;
     }
-
     :host(:hover) {
-      background-color: #f0f0f0;
-
-      .button {
-        display: block;
-      }
+      background-color: var(--sl-color-gray-100);
     }
-
+    :host(:hover) .button {
+      display: block;
+    }
     :host([selected]) {
-      background-color: #e0e0e0;
-
+      background-color: var(--sl-color-gray-200);
       .button {
         display: block;
       }
@@ -65,6 +73,7 @@ export class ChatSectionItem extends LitElement {
 
     .button {
       position: absolute;
+      z-index: 2;
       display: none;
       right: 0;
       top: 0;

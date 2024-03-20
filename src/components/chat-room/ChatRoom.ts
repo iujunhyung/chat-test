@@ -12,11 +12,6 @@ import { ChatStore } from "../../system/ChatStore";
 @customElement('chat-room')
 export class ChatRoom extends LitElement {
 
-  private readonly observer = new ResizeObserver(() => {
-    console.log('resize');
-    this.scrollToBottom();
-  });
-
   @query('.output') output!: HTMLDivElement;
   @state() messages: IChatMessage[] = [];
 
@@ -25,17 +20,6 @@ export class ChatRoom extends LitElement {
     autorun(() => {
       this.messages = ChatStore.messages.get();
     });
-  }
-
-  disconnectedCallback() {
-    this.observer.disconnect();
-    super.disconnectedCallback();
-  }
-
-  protected async firstUpdated(changedProperties: any) {
-    super.firstUpdated(changedProperties);
-    await this.updateComplete;
-    this.observer.observe(this.output);
   }
 
   render() {
@@ -49,6 +33,7 @@ export class ChatRoom extends LitElement {
             .userName=${message.userName}
             .timestamp=${message.timestamp}
             .content=${message.content}
+            @render=${this.scrollToBottom}
           ></chat-message>
         `)}
       </div>

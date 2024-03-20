@@ -32,7 +32,9 @@
     "emitDecoratorMetadata": true,
     
     // 출력 설정
-    "noEmit": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "types",
 
     // 기타 옵션
     "useDefineForClassFields": false,
@@ -40,7 +42,7 @@
   },
   "include": [
     "src/**/*",
-    "test/**/*",
+    "web/**/*",
     "vite.config.ts",
     "vite-env.d.ts"
   ]

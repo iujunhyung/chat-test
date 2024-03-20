@@ -113,3 +113,9 @@ export interface Citation {
   snippet: string;
   relevanceScore: number;
 }
+
+export interface EditableChatSession {
+  title: string;
+  systemDescription: string;
+  memoryBalance: number;
+}

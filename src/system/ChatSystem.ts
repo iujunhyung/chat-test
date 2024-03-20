@@ -8,6 +8,7 @@ import type {
   SystemType
 } from "../models/System";
 import type { 
+  EditableChatSession,
   IChatSession 
 } from "../models/Chat";
 
@@ -78,10 +79,13 @@ export class ChatSystem {
     return result;
   }
 
-  // TODO: 입력 구현!!
-  public static async editChat(title?: string) {
+  public static async editChat(chat?: EditableChatSession) {
     const id = ChatStore.chatID.get();
-    const body = { title: title };
+    const body = { 
+      title: chat?.title || ChatStore.title.get(),
+      systemDescription: chat?.systemDescription || ChatStore.description.get(),
+      memoryBalance: chat?.memoryBalance || ChatStore.memoryBalance.get()
+    };
     const result = await this.api.patchChat(id, body);
     return result;
   }
