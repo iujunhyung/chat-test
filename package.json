@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@shoelace-style/shoelace": "^2.14.0",
-    "@types/node": "^20.11.27",
+    "@types/node": "^20.11.30",
     "sass": "^1.72.0",
     "sass-loader": "^14.1.1",
     "typescript": "^5.4.2",
