@@ -1,10 +1,6 @@
 import { LitElement, css, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 
-import './chat-list/ChatList';
-import './chat-room/ChatHeader';
-import './chat-room/ChatRoom';
-
 @customElement('multiple-chat')
 export class MultipleChat extends LitElement {
   private readonly observer = new ResizeObserver(() => {
@@ -44,10 +40,9 @@ export class MultipleChat extends LitElement {
     return html`
       <div class="panel">
         <chat-list></chat-list>
-        <button class="toggler"
-          @click=${() => this.panelOpen = !this.panelOpen}>
-          TT
-        </button>
+        <chat-icon-button class="toggler" name="list" size="24"
+          @click=${() => this.panelOpen = !this.panelOpen}
+        ></chat-icon-button>
       </div>
       <div class="overlay"
         @click=${() => this.panelOpen = false}
@@ -124,10 +119,8 @@ export class MultipleChat extends LitElement {
         display: none;
         position: absolute;
         z-index: 2;
-        top: 10px;
-        right: -52px;
-        width: 32px;
-        height: 32px;
+        top: 13px;
+        right: -40px;
       }
     }
     .panel.small {
@@ -138,7 +131,7 @@ export class MultipleChat extends LitElement {
       width: 0px;
       
       .toggler {
-        display: block;
+        display: flex;
       }
     }
     .panel.small.open {

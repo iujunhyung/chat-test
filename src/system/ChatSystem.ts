@@ -81,7 +81,7 @@ export class ChatSystem {
 
   public static async editChat(chat?: EditableChatSession) {
     const id = ChatStore.chatID.get();
-    const body = { 
+    const body = {
       title: chat?.title || ChatStore.title.get(),
       systemDescription: chat?.systemDescription || ChatStore.description.get(),
       memoryBalance: chat?.memoryBalance || ChatStore.memoryBalance.get()

@@ -7,6 +7,7 @@ import {
   ChatMessageType,
   AuthorRoles 
 } from "../../models/Chat";
+import { Image } from "../../static/Image";
 import { ChatStore } from "../../system";
 
 @customElement('chat-message')
@@ -64,7 +65,7 @@ export class ChatMessage extends LitElement {
           ${unsafeHTML(this.innerContent)}
         </div>
         <div class="footer">
-          <div class="button">Copy</div>
+          <chat-copy-button .value=${this.content}></chat-copy-button>
           <label class="time">${this.innerTimestamp}</label>
         </div>
       </div>
@@ -73,15 +74,15 @@ export class ChatMessage extends LitElement {
 
   private renderAvatar() {
     const avatar = this.authorRole === AuthorRoles.Bot 
-    ? 'bot' 
+    ? Image['bot']
     : this.authorRole === AuthorRoles.User
-    ? 'user'
+    ? Image['user']
     : this.authorRole === AuthorRoles.Participant
-    ? 'participant'
-    : 'unknown';
+    ? Image['participant']
+    : Image['unknown'];
     
     return html`
-      <img src=${avatar} alt="avatar">
+      <img src=${avatar}  alt="avatar" />
     `;
   }
 
@@ -124,8 +125,14 @@ export class ChatMessage extends LitElement {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background-color: red;
+      border: 1px solid var(--sl-color-neutral-500);
+      box-sizing: border-box;
       overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     .main {
@@ -153,7 +160,7 @@ export class ChatMessage extends LitElement {
         border-radius: 8px;
         padding: 10px;
         background-color: var(--sl-color-gray-50);
-        border: 1px solid #f8f9fa;
+        border: 1px solid var(--sl-color-neutral-200);
       }
 
       .footer {

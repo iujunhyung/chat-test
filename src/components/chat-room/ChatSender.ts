@@ -5,8 +5,8 @@ import { ChatSystem } from '../../system/ChatSystem';
 import { autorun } from "mobx";
 import { ChatStore } from "../../system";
 
-@customElement('chat-input')
-export class ChatInput extends LitElement {
+@customElement('chat-sender')
+export class ChatSender extends LitElement {
 
   @query('textarea') input!: HTMLTextAreaElement;
   @state() status?: string;
@@ -30,20 +30,20 @@ export class ChatInput extends LitElement {
 
   render() {
     return html`
-      <div class="status">
-        ${this.status}
-      </div>
-      <sl-icon-button
-        .name=${'paperclip'}
-      ></sl-icon-button>
+      <bot-status class="status"
+        .message=${this.status}
+      ></bot-status>
+      <chat-icon-button name="clip" size="22"
+        @click=${this.uploadFile}
+      ></chat-icon-button>
       <textarea
         rows="1"
         @input=${this.handleInput}
         @keydown=${this.handleKeyDown}
       ></textarea>
-      <sl-icon-button
-        .name=${'send'}
-      ></sl-icon-button>
+      <chat-icon-button name='send' size="22"
+        @click=${this.sendMessage}
+      ></chat-icon-button>
     `;
   }
 
@@ -51,11 +51,7 @@ export class ChatInput extends LitElement {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       event.stopPropagation();
-      const message = this.value;
-      this.input.value = '';
-      this.value = '';
-      if(!message) return;
-      await ChatSystem.sendMessage(message);
+      await this.sendMessage();
     }
   }
 
@@ -70,6 +66,36 @@ export class ChatInput extends LitElement {
     this.input.style.height = `${this.input.scrollHeight}px`;
   }
 
+  private async sendMessage() {
+    const message = this.value;
+    this.input.value = '';
+    this.value = '';
+    if(!message) return;
+    await ChatSystem.sendMessage(message);
+  }
+
+  private async uploadFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '*';
+    input.addEventListener('change', this.handleFiles);
+    input.click();
+  }
+
+  private handleFiles = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.item(0);
+    if(file) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const data = reader.result as string;
+        console.log(data);
+      }
+      reader.readAsDataURL(file);
+    }
+    input.removeEventListener('change', this.handleFiles);
+  }
+
   static styles = css`
     :host {
       position: relative;
@@ -77,21 +103,18 @@ export class ChatInput extends LitElement {
       height: auto;
       display: flex;
       flex-direction: row;
-      gap: 5px;
+      gap: 10px;
       align-items: flex-end;
       box-sizing: border-box;
-
-      border: 1px solid var(--sl-color-gray-400);
-      padding: 10px;
-      border-radius: 1rem;
+      padding: 10px 15px;
+      border: 1px solid var(--sl-color-neutral-600);
+      border-radius: 10px;
     }
 
     .status {
       position: absolute;
       top: -40px;
-      left: 10px;
-      font-size: 12px;
-      line-height: 18px;
+      left: 0px;
     }
 
     textarea {
@@ -109,5 +132,15 @@ export class ChatInput extends LitElement {
       padding: 0px;
       background-color: transparent;
     }
+    textarea::-webkit-scrollbar {
+      width: 5px;
+    }
+    textarea::-webkit-scrollbar-thumb {
+      background-color: var(--sl-color-neutral-600);
+    }
+    textarea::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
   `;
 }

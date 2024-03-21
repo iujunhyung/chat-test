@@ -4,8 +4,6 @@ import type {
   IChatMessage 
 } from "../../models/Chat";
 
-import "./ChatMessage";
-import "./ChatInput";
 import { autorun } from "mobx";
 import { ChatStore } from "../../system/ChatStore";
 
@@ -38,7 +36,7 @@ export class ChatRoom extends LitElement {
         `)}
       </div>
       <div class="input">
-        <chat-input></chat-input>
+        <chat-sender></chat-sender>
       </div>
     `;
   }

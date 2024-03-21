@@ -3,9 +3,6 @@ import { customElement, state } from "lit/decorators.js";
 import { autorun } from "mobx";
 
 import type { IChatSession } from "../../models/Chat";
-
-import "./ChatSection";
-import "./ChatSectionItem";
 import { ChatSystem, ChatStore } from "../../system";
 
 @customElement('chat-list')
@@ -30,10 +27,15 @@ export class ChatList extends LitElement {
         <div class="control">
           <span class="title">${this.label}</span>
           <div class="flex"></div>
-          <button @click=${this.createChat}>NEW +</button>
-          <button>Delete All</button>
+          <chat-icon-button name="plus-square"
+            @click=${this.createChat}
+          ></chat-icon-button>
+          <chat-icon-button name="trash"
+            @click=${this.deleteAllChat}
+          ></chat-icon-button>
         </div>
         <div class="search">
+          <chat-icon name="search"></chat-icon>
           <input type="text" placeholder="Search" 
             @keydown=${this.searchChat}/>
         </div>
@@ -42,7 +44,11 @@ export class ChatList extends LitElement {
         ${this.renderSections()}
       </div>
       <div class="footer">
-        <button @click=${this.toggleTheme}>Global Setting</button>
+        <chat-button @click=${this.toggleTheme}>
+          <chat-icon slot="prefix" name="gear"></chat-icon>
+          <chat-icon slot="suffix" name="export"></chat-icon>
+          Global Setting
+        </chat-button>
       </div>
     `;
   }
@@ -86,6 +92,11 @@ export class ChatList extends LitElement {
     const newChat = await ChatSystem.createChat();
     this.chats = [newChat.chatSession, ...this.chats];
     await ChatSystem.loadChat(newChat.chatSession);
+  }
+
+  private async deleteAllChat() {
+    // await ChatSystem.deleteAllChats();
+    // this.chats = [];
   }
 
   private filterChats() {
@@ -144,7 +155,7 @@ export class ChatList extends LitElement {
       --header-height: 90px;
       --footer-height: 40px;
       --header-padding: 12px;
-      --footer-padding: 12px;
+      /* --footer-padding: 12px; */
 
       box-sizing: border-box;
       border: 1px solid black;
@@ -167,7 +178,7 @@ export class ChatList extends LitElement {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        gap: 5px;
+        gap: 10px;
 
         .title {
           font-size: 20px;
@@ -178,9 +189,6 @@ export class ChatList extends LitElement {
         .flex {
           flex: 1;
         }
-
-        button {
-        }
       }
 
       .search {
@@ -188,16 +196,19 @@ export class ChatList extends LitElement {
         display: flex;
         flex-direction: row;
         align-items: center;
-        padding: 5px;
+        gap: 5px;
+        padding: 5px 10px;
         box-sizing: border-box;
         border-radius: 5px;
-        border: 1px solid black;
+        border: 1px solid var(--sl-color-neutral-600);
           
         input {
           flex: 1;
           border: none;
           outline: none;
           background-color: transparent;
+          font-size: 14px;
+          line-height: 14px;
         }
       }
     }
@@ -223,8 +234,10 @@ export class ChatList extends LitElement {
       position: relative;
       width: 100%;
       height: var(--footer-height);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-sizing: border-box;
-      padding: var(--footer-padding);
 
       border: 1px solid black;
     }

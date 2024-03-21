@@ -17,7 +17,9 @@ export class ChatSectionItem extends LitElement {
         ${this.item?.title}
       </div>
       <div class="button">
-        <button @click=${this.deleteChat}>버튼</button>
+        <chat-icon-button name="vertical-dots" size="20"
+          @click=${this.deleteChat}
+        ></chat-icon-button>
       </div>
     `;
   }
@@ -51,9 +53,9 @@ export class ChatSectionItem extends LitElement {
     }
     :host([selected]) {
       background-color: var(--sl-color-gray-200);
-      .button {
-        display: block;
-      }
+    }
+    :host([selected]) .button {
+      display: block;
     }
 
     .item {
@@ -73,12 +75,10 @@ export class ChatSectionItem extends LitElement {
 
     .button {
       position: absolute;
-      z-index: 2;
       display: none;
-      right: 0;
-      top: 0;
-      width: 40px;
-      height: 100%;
+      z-index: 1;
+      right: 5px;
+      top: 7px;
     }
   `;
 }

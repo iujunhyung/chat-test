@@ -1,12 +1,8 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { autorun } from "mobx";
+
 import type { SystemType } from "./models/System";
-
-import "./components/loader/InitialLoader";
-import "./components/SingularChat";
-import "./components/MultipleChat";
-
 import { ChatSystem } from "./system/ChatSystem";
 
 @customElement('llm-chat')
