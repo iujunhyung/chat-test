@@ -1,11 +1,9 @@
 import { LitElement, css, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
-import type { 
-  IChatMessage 
-} from "../../models/Chat";
-
 import { autorun } from "mobx";
-import { ChatStore } from "../../system/ChatStore";
+
+import type { IChatMessage } from "../../models/Chat";
+import { ChatSystem, ChatStore } from "../../system";
 
 @customElement('chat-room')
 export class ChatRoom extends LitElement {
@@ -13,15 +11,28 @@ export class ChatRoom extends LitElement {
   @query('.output') output!: HTMLDivElement;
   @state() messages: IChatMessage[] = [];
 
-  connectedCallback() {
-    super.connectedCallback();
+  protected async firstUpdated(changedProperties: any) {
+    super.firstUpdated(changedProperties);
+    await this.updateComplete;
+
     autorun(() => {
       this.messages = ChatStore.messages.get();
+    });
+    autorun(() => {
+      const screen = ChatSystem.screen.get();
+      if(screen === 'large') {
+        this.style.setProperty('--column-width', '768px');
+        this.style.setProperty('--side-padding', '20px');
+      } else {
+        this.style.setProperty('--column-width', '100%');
+        this.style.setProperty('--side-padding', '20px');
+      }
     });
   }
 
   render() {
     return html`
+      <!-- Current Chat Messages -->
       <div class="output">
         ${this.messages.map((message) => html`
           <chat-message
@@ -35,6 +46,8 @@ export class ChatRoom extends LitElement {
           ></chat-message>
         `)}
       </div>
+
+      <!-- User Input -->
       <div class="input">
         <chat-sender></chat-sender>
       </div>

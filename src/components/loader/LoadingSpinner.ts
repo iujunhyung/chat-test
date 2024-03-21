@@ -38,7 +38,7 @@ export class LoadingSpinner extends LitElement {
     }
 
     .loader {
-      width: var(--spinner-size);
+      height: var(--spinner-size);
       aspect-ratio: 1;
       border-radius: 50%;
       background: 

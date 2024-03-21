@@ -4,8 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 @customElement('chat-section')
 export class ChatSection extends LitElement {
 
-  @property({ type: String }) 
-  label?: string;
+  @property({ type: String }) label?: string;
 
   render() {
     return html`

@@ -1,9 +1,8 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
-
-import { ChatSystem } from '../../system/ChatSystem';
 import { autorun } from "mobx";
-import { ChatStore } from "../../system";
+
+import { ChatSystem, ChatStore } from "../../system";
 
 @customElement('chat-sender')
 export class ChatSender extends LitElement {
@@ -12,8 +11,10 @@ export class ChatSender extends LitElement {
   @state() status?: string;
   @property({ type: String }) value: string = '';
 
-  connectedCallback() {
-    super.connectedCallback();
+  protected async firstUpdated(changedProperties: any) {
+    super.firstUpdated(changedProperties);
+    await this.updateComplete;
+
     autorun(() => {
       this.status = ChatStore.status.get();
     });
@@ -30,17 +31,24 @@ export class ChatSender extends LitElement {
 
   render() {
     return html`
+      <!-- Kernel Status Message -->
       <bot-status class="status"
         .message=${this.status}
       ></bot-status>
+
+      <!-- File Uploader -->
       <chat-icon-button name="clip" size="22"
         @click=${this.uploadFile}
       ></chat-icon-button>
+      
+      <!-- User Input -->
       <textarea
         rows="1"
         @input=${this.handleInput}
         @keydown=${this.handleKeyDown}
       ></textarea>
+      
+      <!-- Send Button -->
       <chat-icon-button name='send' size="22"
         @click=${this.sendMessage}
       ></chat-icon-button>

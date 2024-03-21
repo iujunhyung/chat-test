@@ -8,7 +8,8 @@ import type {
   ICreateChatSessionResponse,
   IChatParticipant,
   ChatArchive,
-  APIConfig
+  APIConfig,
+  EditableChatSession
 } from "../models";
 import { ChatMessageType } from "../models/Chat";
 
@@ -74,13 +75,13 @@ export class ChatAPI {
     return result;
   }
 
-  public async createChat(body: any) {
+  public async createChat(body: { title: string }) {
     const result = await this.post<ICreateChatSessionResponse>(`chats`, body);
     console.log('patchChat', result);
     return result;
   }
 
-  public async patchChat(id: string, body: any) {
+  public async patchChat(id: string, body: EditableChatSession) {
     const result = await this.patch<IChatSession>(`chats/${id}`, body);
     console.log('patchChat', result);
     return result;

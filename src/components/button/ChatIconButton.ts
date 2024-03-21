@@ -6,6 +6,7 @@ export class ChatIconButton extends LitElement {
   
   @state() isHover: boolean = false;
 
+  @property({ type: Boolean, reflect: true }) loading: boolean = false;
   @property({ type: String }) name: string = '';
   @property({ type: Number }) size: number = 18;
   @property({ type: String }) color?: string;
@@ -29,15 +30,23 @@ export class ChatIconButton extends LitElement {
   }
 
   private renderIcon() {
-    return html`
-      <chat-icon
-        .name=${this.name}
-        .size=${this.size}
-        .color=${this.isHover ? '#4a90e2' : this.color}
-        @mouseenter=${() => this.isHover = true}
-        @mouseleave=${() => this.isHover = false}
-      ></chat-icon>
-    `;
+    if(this.loading) {
+      return html`
+        <loading-spinner
+          size=${`${this.size}px`}
+        ></loading-spinner>
+      `;
+    } else {
+      return html`
+        <chat-icon
+          .name=${this.name}
+          .size=${this.size}
+          .color=${this.isHover ? '#4a90e2' : this.color}
+          @mouseenter=${() => this.isHover = true}
+          @mouseleave=${() => this.isHover = false}
+        ></chat-icon>
+      `;
+    }
   }
   
   static styles = css`
@@ -46,6 +55,9 @@ export class ChatIconButton extends LitElement {
       display: inline-flex;
       transition: background-color 0.3s;
       cursor: pointer;
+    }
+    :host([loading]) {
+      cursor: not-allowed;
     }
   `;
 }

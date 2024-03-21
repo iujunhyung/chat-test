@@ -1,30 +1,44 @@
 import { LitElement, css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, query, state } from "lit/decorators.js";
 import { autorun } from "mobx";
 
 import type { IChatSession } from "../../models/Chat";
 import { ChatSystem, ChatStore } from "../../system";
 
-@customElement('chat-list')
-export class ChatList extends LitElement {
+@customElement('chat-side-bar')
+export class ChatSideBar extends LitElement {
+
+  @query('.toggler') toggler!: HTMLDivElement;
 
   @state() label: string = "Copilot";
   @state() selectedId?: string; 
   @state() chats: IChatSession[] = [];
   @state() search: string = '';
   
-  connectedCallback() {
-    super.connectedCallback();
-    this.getAllChats();
+  protected async firstUpdated(changedProperties: any) {
+    super.firstUpdated(changedProperties);
+    await this.updateComplete;
+
+    autorun(() => {
+      this.chats = ChatStore.chats.get();
+    });
     autorun(() => {
       this.selectedId = ChatStore.chatID.get();
+    });
+    autorun(() => {
+      const screen = ChatSystem.screen.get();
+      this.toggler.style.display = screen === 'small' ? 'inline-flex' : 'none';
     });
   }
 
   render() {
     return html`
+      <!-- Side Bar Head -->
       <div class="header">
         <div class="control">
+          <chat-icon-button class="toggler" name="list"
+            @click=${() => ChatSystem.openSideBar.set(false)}
+          ></chat-icon-button>
           <span class="title">${this.label}</span>
           <div class="flex"></div>
           <chat-icon-button name="plus-square"
@@ -42,11 +56,15 @@ export class ChatList extends LitElement {
             @keydown=${this.searchChat}/>
         </div>
       </div>
+
+      <!-- Side Bar Session List -->
       <div class="body">
         ${this.renderSections()}
       </div>
+
+      <!-- Side Bar Setting Button -->
       <div class="footer">
-        <chat-button @click=${this.toggleTheme}>
+        <chat-button @click=${() => ChatSystem.toggleTheme()}>
           <chat-icon slot="prefix" name="gear"></chat-icon>
           <chat-icon slot="suffix" name="export"></chat-icon>
           Global Setting
@@ -74,20 +92,10 @@ export class ChatList extends LitElement {
         <chat-section-item
           ?selected=${selected}
           .item=${item}
+          @select=${() => ChatSystem.openSideBar.set(false)}
         ></chat-section-item>
       `;
     });
-  }
-
-  private async getAllChats() {
-    const chats = await ChatSystem.getAllChats();
-    if(chats && chats.length > 0) {
-      this.chats = chats;
-      await ChatSystem.loadChat(chats[0]);
-    } else {
-      await ChatSystem.createChat();
-      await this.getAllChats();
-    }
   }
 
   private async createChat() {
@@ -96,9 +104,19 @@ export class ChatList extends LitElement {
     await ChatSystem.loadChat(newChat.chatSession);
   }
 
-  private async deleteAllChat() {
-    // await ChatSystem.deleteAllChats();
-    // this.chats = [];
+  private async deleteAllChat(event: MouseEvent) {
+    const target = event.target as any;
+    if(target.loading) return;
+    target.loading = true;
+    await ChatSystem.deleteAllChats();
+    target.loading = false;
+  }
+
+  private async searchChat(event: KeyboardEvent) {
+    if(event.key === 'Enter') {
+      const target = event.target as HTMLInputElement;
+      this.search = target.value.toLocaleLowerCase();
+    }
   }
 
   private filterChats() {
@@ -134,17 +152,6 @@ export class ChatList extends LitElement {
     return sections;
   }
 
-  private async searchChat(event: KeyboardEvent) {
-    if(event.key === 'Enter') {
-      const target = event.target as HTMLInputElement;
-      this.search = target.value.toLocaleLowerCase();
-    }
-  }
-
-  private async toggleTheme() {
-    document.documentElement.classList.toggle("sl-theme-dark");
-  }
-
   static styles = css`
     :host {
       position: relative;
@@ -152,7 +159,7 @@ export class ChatList extends LitElement {
       height: 100%;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      background-color: var(--sl-color-gray-50);
 
       --header-height: 90px;
       --footer-height: 40px;
@@ -226,10 +233,9 @@ export class ChatList extends LitElement {
       box-sizing: border-box;
 
       border: 1px solid black;
-
-      &::-webkit-scrollbar {
-        width: 0px;
-      }
+    }
+    .body::-webkit-scrollbar {
+      width: 0px;
     }
 
     .footer {

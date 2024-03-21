@@ -3,10 +3,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { marked } from "marked";
 
-import { 
-  ChatMessageType,
-  AuthorRoles 
-} from "../../models/Chat";
+import { ChatMessageType, AuthorRoles } from "../../models/Chat";
 import { Image } from "../../static/Image";
 import { ChatStore } from "../../system";
 
@@ -23,16 +20,10 @@ export class ChatMessage extends LitElement {
   @property({ type: Number }) timestamp?: number;
   @property({ type: String }) content?: string;
 
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    if(this.messageId) {
-      ChatStore.elements.delete(this.messageId);
-    }
-  }
-
   protected async firstUpdated(changedProperties: any) {
     super.firstUpdated(changedProperties);
     await this.updateComplete;
+
     if(this.messageId && this.authorRole === AuthorRoles.Bot) {
       ChatStore.elements.set(this.messageId, this);
     }
@@ -52,11 +43,21 @@ export class ChatMessage extends LitElement {
     this.dispatchEvent(new CustomEvent('render'));
   }
 
+  disconnectedCallback() {
+    if(this.messageId) {
+      ChatStore.elements.delete(this.messageId);
+    }
+    super.disconnectedCallback();
+  }
+
   render() {
     return html`
+      <!-- Avatar Image -->
       <div class="avatar">
         ${this.renderAvatar()}
       </div>
+
+      <!-- Main Message -->
       <div class="main">
         <div class="header">
           <label class="name">${this.userName}</label>

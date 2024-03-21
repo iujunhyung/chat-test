@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 
 import "@shoelace-style/shoelace";
@@ -17,13 +17,22 @@ export class AppTest extends LitElement {
         <div style="width: 500px">
           <h1>Chat Room</h1>
         </div>
-        <div style="width: 800px"> -->
-          <llm-chat 
+        <div style="width: 800px;" class="resize"> -->
+          <llm-chat
+            type="single"
             .host=${host}
           ></llm-chat>
         <!-- </div>
       </div> -->
     `;
   }
+
+  static styles = css`
+    .resize {
+      resize: both;
+      overflow: auto;
+      border: 1px solid #000;
+    }
+  `;
 
 }

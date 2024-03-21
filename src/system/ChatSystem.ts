@@ -17,15 +17,18 @@ import type {
 export class ChatSystem {
   
   public static type: IObservableValue<SystemType> = observable.box<SystemType>('multiple');
-  public static theme: IObservableValue<SystemTheme> = observable.box<SystemTheme>('light');
-  public static screen: IObservableValue<SystemScreen> = observable.box<SystemScreen>('medium');
+  public static screen: IObservableValue<SystemScreen> = observable.box<SystemScreen>('large');
+  public static openSideBar: IObservableValue<boolean> = observable.box<boolean>(false);
+  public static theme: SystemTheme = 'light';
   public static defaultChatTitle?: string;
   public static api: ChatAPI = new ChatAPI();
   public static hub: ChatHub = new ChatHub();
 
   public static setup(config: ChatConfig) {
     this.type.set(config.type || 'multiple');
-    this.defaultChatTitle = config.defaultChatTitle
+    this.defaultChatTitle = config.defaultChatTitle;
+    this.theme = localStorage.getItem('chat-theme') as SystemTheme || this.theme;
+    this.updateTheme();
     this.api.setup({
       host: config.host,
       apiAccessToken: config.apiAccessToken,
@@ -34,6 +37,21 @@ export class ChatSystem {
     this.hub.setup({
       host: config.host
     });
+    this.refresh();
+  }
+
+  public static toggleTheme() {
+    this.theme = this.theme === 'light' ? 'dark' : 'light';
+    this.updateTheme();
+  }
+
+  public static updateTheme(theme: SystemTheme = this.theme) {
+    if(theme === 'light') {
+      document.documentElement.classList.remove('sl-theme-dark');
+    } else {
+      document.documentElement.classList.add('sl-theme-dark');
+    }
+    localStorage.setItem('chat-theme', theme);
   }
 
   public static async sendMessage(message: string) {
@@ -57,9 +75,19 @@ export class ChatSystem {
     }
   }
 
-  public static async getAllChats() {
-    const result = await this.api.getAllChats();
-    return result;
+  public static async refresh() {
+    const chats = await this.api.getAllChats();
+    if(chats && chats.length > 0) {
+      const currentId = ChatStore.chatID.get();
+      const isNotExist = chats.findIndex(chat => chat.id === currentId) < 0;
+      if(isNotExist) {
+        await ChatSystem.loadChat(chats[0]);
+      }
+      ChatStore.chats.set(chats);
+    } else {
+      await ChatSystem.createChat();
+      await this.refresh();
+    }
   }
 
   public static async loadChat(session: IChatSession) {
@@ -85,18 +113,27 @@ export class ChatSystem {
 
   public static async editChat(chat?: EditableChatSession) {
     const id = ChatStore.chatID.get();
-    const body = {
+    const editChat = {
       title: chat?.title || ChatStore.title.get(),
       systemDescription: chat?.systemDescription || ChatStore.description.get(),
       memoryBalance: chat?.memoryBalance || ChatStore.memoryBalance.get()
     };
-    const result = await this.api.patchChat(id, body);
+    const result = await this.api.patchChat(id, editChat);
     return result;
   }
 
   public static async deleteChat(id: string) {
     await this.api.deleteChat(id);
+    await this.refresh();
   }
+
+  public static async deleteAllChats() {
+    const chats = ChatStore.chats.get();
+    await Promise.all(chats.map(chat => this.api.deleteChat(chat.id)));
+    await this.refresh();
+  }
+
+  
 
   // Not used yet
   public static async getChat() {
@@ -143,5 +180,7 @@ export class ChatSystem {
     const result = await this.api.getAuthConfig();
     return result;
   }
+
+  
 
 }

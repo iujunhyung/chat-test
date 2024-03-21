@@ -12,11 +12,13 @@ export class ChatSectionItem extends LitElement {
 
   render() {
     return html`
+      <!-- Menu Item -->
       <div class="item"
         @click=${() => this.loadChat()}>
         ${this.item?.title}
       </div>
-      <div class="button">
+      <!-- Munu Item Control -->
+      <div class="control">
         <chat-icon-button name="vertical-dots" size="20"
           @click=${this.deleteChat}
         ></chat-icon-button>
@@ -27,6 +29,7 @@ export class ChatSectionItem extends LitElement {
   private async loadChat() {
     if (!this.item) return;
     await ChatSystem.loadChat(this.item);
+    this.dispatchEvent(new CustomEvent('select'));
   }
 
   private async deleteChat() {
@@ -48,13 +51,13 @@ export class ChatSectionItem extends LitElement {
     :host(:hover) {
       background-color: var(--sl-color-gray-100);
     }
-    :host(:hover) .button {
+    :host(:hover) .control {
       display: block;
     }
     :host([selected]) {
       background-color: var(--sl-color-gray-200);
     }
-    :host([selected]) .button {
+    :host([selected]) .control {
       display: block;
     }
 
@@ -73,7 +76,7 @@ export class ChatSectionItem extends LitElement {
       cursor: pointer;
     }
 
-    .button {
+    .control {
       position: absolute;
       display: none;
       z-index: 1;

@@ -1,12 +1,12 @@
 import * as signalR from '@microsoft/signalr';
 import { observable, IObservableValue } from 'mobx';
 
-import { ChatStore } from './ChatStore';
-import {
+import type {
   ChatState,
   IChatMessage,
   HubConfig
 } from '../models';
+import { ChatStore } from './ChatStore';
 
 const enum Methods {
   // SignalR receive method names

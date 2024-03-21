@@ -1,99 +1,84 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
+import { autorun } from "mobx";
+
+import type { SystemScreen } from "../models";
+import { ChatSystem } from "../system/ChatSystem";
 
 @customElement('multiple-chat')
 export class MultipleChat extends LitElement {
-  private readonly observer = new ResizeObserver(() => {
-    this.handleResize();
-  });
-
-  @state() screen: 'small' | 'medium' | 'large' = 'large';
-  @state() panelOpen = false;
-
+  
   @query('.panel') panel!: HTMLDivElement;
   @query('.overlay') overlay!: HTMLDivElement;
-  @query('.main') main!: HTMLDivElement;
-  @query('chat-room') chatRoom!: HTMLElement;
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.observer.observe(this);
-  }
+  @state() screen: SystemScreen = 'large';
 
-  disconnectedCallback() {
-    this.observer.disconnect();
-    super.disconnectedCallback();
-  }
-
-  protected async updated(changedProperties: any) {
-    super.updated(changedProperties);
+  protected async firstUpdated(changedProperties: any) {
+    super.firstUpdated(changedProperties);
     await this.updateComplete;
-    if (changedProperties.has('screen')) {
-      this.changeScreen();
-    }
-    if (changedProperties.has('panelOpen')) {
-      this.togglePanel();
-    }
+    autorun(() => {
+      this.screen = ChatSystem.screen.get();
+      this.adjustPanelPosition();
+    });
+    autorun(() => {
+      const open = ChatSystem.openSideBar.get();
+      this.togglePanel(open);
+    });
   }
 
   render() {
     return html`
+      <!-- Chat Session List Side Bar -->
       <div class="panel">
-        <chat-list></chat-list>
-        <chat-icon-button class="toggler" name="list" size="24"
-          @click=${() => this.panelOpen = !this.panelOpen}
-        ></chat-icon-button>
+        <chat-side-bar></chat-side-bar>
       </div>
-      <div class="overlay"
-        @click=${() => this.panelOpen = false}
-      ></div>
+
+      <!-- Current Main Chat Room -->
       <div class="main">
         <chat-header class="header">
-          <div slot="prefix"></div>
+          ${this.renderToggler()}
           <div slot="suffix"></div>
         </chat-header>
         <chat-room></chat-room>
       </div>
+
+      <!-- Side Bar overlay in small size -->
+      <div class="overlay" 
+        @click=${() => ChatSystem.openSideBar.set(false)}
+      ></div>
     `;
   }
 
-  private handleResize = () => {
-    const width = this.clientWidth;
-    if(width < 768 && this.screen !== 'small') {
-      this.screen = 'small'; return;
-    } else if(width >= 768 && width < 1100 && this.screen !== 'medium') {
-      this.screen = 'medium'; return;
-    } else if(width >= 1100 && this.screen !== 'large') {
-      this.screen = 'large'; return;
+  private renderToggler() {
+    if(this.screen !== 'small') return nothing;
+    return html`
+      <chat-icon-button class="toggler" slot="prefix" name="list"
+        @click=${() => ChatSystem.openSideBar.set(true)}
+      ></chat-icon-button>
+    `;
+  }
+
+  private adjustPanelPosition() {
+    if(this.screen === 'small') {
+      this.panel.classList.add('top');
+      this.togglePanel(false);
+    } else {
+      this.panel.classList.remove('top');
+      this.togglePanel(true);
     }
   }
 
-  private changeScreen = () => {
-    if (this.screen === 'small') {
-      this.panel.classList.add('small');
-      this.main.classList.add('small');
-      this.chatRoom.classList.add('medium');
-      if (this.panelOpen) this.panelOpen = false;
-    } else if (this.screen === 'medium') {
-      this.panel.classList.remove('small');
-      this.main.classList.remove('small');
-      this.chatRoom.classList.add('medium');
-      if (this.panelOpen) this.panelOpen = false;
+  private togglePanel(open: boolean) {
+    if(this.screen === 'small') {
+      if(open) {
+        this.panel.classList.add('open');
+        this.overlay.style.display = 'block';
+      } else {
+        this.panel.classList.remove('open');
+        this.overlay.style.display = 'none';
+      }
     } else {
-      this.panel.classList.remove('small');
-      this.main.classList.remove('small');
-      this.chatRoom.classList.remove('medium');
-      if (this.panelOpen) this.panelOpen = false;
-    }
-  }
-
-  private togglePanel = () => {
-    if (this.panelOpen) {
-      this.panel.classList.add('open');
-      this.overlay.classList.add('open');
-    } else {
-      this.panel.classList.remove('open');
-      this.overlay.classList.remove('open');
+      this.overlay.style.display = 'none';
     }
   }
 
@@ -110,72 +95,47 @@ export class MultipleChat extends LitElement {
 
     .panel {
       position: relative;
-      width: 260px;
-      height: 100%;
-      background-color: var(--sl-color-gray-50);
-      transition: width 0.2s ease-in-out;
-
-      .toggler {
-        display: none;
-        position: absolute;
-        z-index: 2;
-        top: 13px;
-        right: -40px;
-      }
-    }
-    .panel.small {
-      position: absolute;
-      z-index: 2;
+      z-index: 10;
       top: 0;
       left: 0;
-      width: 0px;
-      
-      .toggler {
-        display: flex;
-      }
-    }
-    .panel.small.open {
       width: 260px;
+      height: 100%;
+    }
+    .panel.top {
+      position: absolute;
+      overflow: hidden;
+      transform: translateX(-260px);
+      transition: transform 0.3s ease-in-out;
+    }
+    .panel.top.open {
+      transform: translateX(0);
+      overflow: unset;
     }
 
     .overlay {
-      display: none;
       position: absolute;
-      z-index: 1;
+      display: none;
+      z-index: 9;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
     }
-    .overlay.open {
-      display: block;
-    }
 
     .main {
       position: relative;
-      width: calc(100% - 260px);
-      height: 100%;
-
-      &.small {
-        width: 100%;
-      }
+      flex: 1;
 
       .header {
         position: relative;
-        width: 100%;
         height: var(--header-height);
         border: 1px solid black;
       }
 
       chat-room {
         position: relative;
-        width: 100%;
         height: calc(100% - var(--header-height));
-
-        &.medium {
-          --column-width: 100%;
-        }
       }
     }
   `;

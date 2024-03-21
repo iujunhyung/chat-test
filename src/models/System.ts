@@ -1,4 +1,4 @@
-export type SystemType = 'single' | 'multiple';
+export type SystemType = 'single' | 'multiple' | 'inline';
 export type SystemTheme = 'light' | 'dark';
 export type SystemScreen = 'small' | 'medium' | 'large';
 
@@ -34,7 +34,8 @@ export interface APIConfig extends SharedConfig {
 }
 
 export interface HubConfig extends SharedConfig {
-  
+  // hubAccessToken?: string;
+  // hubAddCredential?: boolean;
 }
 
 export interface SharedConfig {

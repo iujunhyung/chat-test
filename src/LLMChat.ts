@@ -2,11 +2,13 @@ import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { autorun } from "mobx";
 
-import type { SystemType } from "./models/System";
+import type { SystemType, SystemScreen } from "./models/System";
 import { ChatSystem } from "./system/ChatSystem";
 
 @customElement('llm-chat')
 export class LLMChat extends LitElement {
+  private readonly observer = new ResizeObserver(() => { this.handleResize() });
+  private screen: SystemScreen = 'large';
 
   @state() ready: boolean = false;
 
@@ -15,10 +17,20 @@ export class LLMChat extends LitElement {
   @property({ type: String }) apiAccessToken?: string;
   @property({ type: Boolean }) apiAddCredential: boolean = false;
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.observer.observe(this);
+  }
+
+  disconnectedCallback() {
+    this.observer.disconnect();
+    super.disconnectedCallback();
+  }
+
   protected async firstUpdated(_changedProperties: any) {
     super.firstUpdated(_changedProperties);
     await this.updateComplete;
-    this.init();
+    this.initialize();
   }
 
   render() {
@@ -40,12 +52,18 @@ export class LLMChat extends LitElement {
       `;
     }
 
+    if(this.type === 'inline') {
+      return html`
+        <div>Not implemented yet</div>
+      `;
+    }
+
     return html`
       <div>Unknown chat type</div>
     `;
   }
 
-  private async init() {
+  private async initialize() {
     ChatSystem.setup({
       type: this.type,
       host: this.host,
@@ -59,9 +77,29 @@ export class LLMChat extends LitElement {
     autorun(() => {
       this.type = ChatSystem.type.get();
     });
+    autorun(() => {
+      this.screen = ChatSystem.screen.get();
+    });
+  }
+
+  private handleResize = () => {
+    const width = this.clientWidth;
+    if(width < 768 && this.screen !== 'small') {
+      ChatSystem.screen.set('small'); return;
+    } else if(width >= 768 && width < 1100 && this.screen !== 'medium') {
+      ChatSystem.screen.set('medium');; return;
+    } else if(width >= 1100 && this.screen !== 'large') {
+      ChatSystem.screen.set('large');; return;
+    }
   }
 
   static styles = css`
-    
+    :host {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
   `;
 }

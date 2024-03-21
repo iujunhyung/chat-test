@@ -2,8 +2,7 @@ import { LitElement, css, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { autorun } from "mobx";
 
-import { ChatStore } from "../../system/ChatStore";
-import { ChatSystem } from "../..";
+import { ChatSystem, ChatStore } from "../../system";
 
 @customElement('chat-header')
 export class ChatHeader extends LitElement {
@@ -16,8 +15,9 @@ export class ChatHeader extends LitElement {
   @state() description?: string;
   @state() memoryBalance?: number;
 
-  connectedCallback() {
-    super.connectedCallback();
+  protected async firstUpdated(changedProperties: any) {
+    super.firstUpdated(changedProperties);
+    await this.updateComplete;
 
     autorun(() => {
       this.label = ChatStore.title.get();

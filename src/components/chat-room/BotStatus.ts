@@ -8,7 +8,6 @@ export class BotStatus extends LitElement {
 
   render() {
     if(this.message) {
-      console.log('message', this.message);
       return html`
         <div class="container">
           <loading-spinner size="14px"></loading-spinner>
