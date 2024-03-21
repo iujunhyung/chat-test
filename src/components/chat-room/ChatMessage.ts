@@ -88,14 +88,17 @@ export class ChatMessage extends LitElement {
 
   private async parseContent(type: ChatMessageType, content: string) {
     if(type === ChatMessageType.Message) {
-      const result = await marked.parse(content);
-      return result;
+      if(this.authorRole === AuthorRoles.Bot) {
+        return await marked.parse(content);
+      } else {
+        return `<pre>${content}</pre>`;
+      }
     } else if(type === ChatMessageType.Document) {
-      return undefined;
+      return 'Not supported yet';
     } else if(type === ChatMessageType.Plan) {
-      return undefined;
+      return 'Not supported yet';
     } else {
-      return undefined;
+      return 'Not supported yet';
     }
   }
 

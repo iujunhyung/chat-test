@@ -11,12 +11,16 @@ export class ChatCopyButton extends LitElement {
 
   render() {
     return html`
-      <chat-icon
-        .name=${this.icon}
-        .size=${this.size}
-        .color=${this.icon === 'check' ? 'green' : undefined}
-        @click=${this.copyToClipboard}
-      ></chat-icon>
+      <chat-tooltip position="right-bottom" 
+        content=${this.icon === 'check' ? 'Copied!' : 'Copy to Clipboard'}
+      >
+        <chat-icon
+          .name=${this.icon}
+          .size=${this.size}
+          .color=${this.icon === 'check' ? 'green' : undefined}
+          @click=${this.copyToClipboard}
+        ></chat-icon>
+      </chat-tooltip>
     `;
   }
 

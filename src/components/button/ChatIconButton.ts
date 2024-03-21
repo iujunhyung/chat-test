@@ -9,8 +9,26 @@ export class ChatIconButton extends LitElement {
   @property({ type: String }) name: string = '';
   @property({ type: Number }) size: number = 18;
   @property({ type: String }) color?: string;
+  @property({ type: String }) tooltip?: string;
 
   render() {
+    return this.tooltip
+      ? this.renderIconWithTooltip()
+      : this.renderIcon();
+  }
+
+  private renderIconWithTooltip() {
+    return html`
+      <chat-tooltip
+        position="bottom"
+        .content=${this.tooltip}
+      >
+        ${this.renderIcon()}
+      </chat-tooltip>
+    `;
+  }
+
+  private renderIcon() {
     return html`
       <chat-icon
         .name=${this.name}

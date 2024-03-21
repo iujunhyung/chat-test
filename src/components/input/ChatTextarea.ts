@@ -55,7 +55,7 @@ export class ChatTextarea extends LitElement {
       font-size: 14px;
       line-height: 18px;
       box-sizing: border-box;
-      border: 1px solid var(--sl-color-neutral-300);
+      border: 2px solid var(--sl-color-neutral-300);
       border-radius: 5px;
     }
     textarea:focus {

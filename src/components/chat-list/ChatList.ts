@@ -28,9 +28,11 @@ export class ChatList extends LitElement {
           <span class="title">${this.label}</span>
           <div class="flex"></div>
           <chat-icon-button name="plus-square"
+            tooltip="Create New"
             @click=${this.createChat}
           ></chat-icon-button>
           <chat-icon-button name="trash"
+            tooltip="Delete All"
             @click=${this.deleteAllChat}
           ></chat-icon-button>
         </div>

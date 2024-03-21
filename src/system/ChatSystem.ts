@@ -5,7 +5,9 @@ import { ChatStore } from "./ChatStore";
 
 import type { 
   ChatConfig,
-  SystemType
+  SystemType,
+  SystemTheme,
+  SystemScreen
 } from "../models/System";
 import type { 
   EditableChatSession,
@@ -15,13 +17,15 @@ import type {
 export class ChatSystem {
   
   public static type: IObservableValue<SystemType> = observable.box<SystemType>('multiple');
-  public static defaultChatTitle: string = `@Generated ${Date.now().toLocaleString()}`;
+  public static theme: IObservableValue<SystemTheme> = observable.box<SystemTheme>('light');
+  public static screen: IObservableValue<SystemScreen> = observable.box<SystemScreen>('medium');
+  public static defaultChatTitle?: string;
   public static api: ChatAPI = new ChatAPI();
   public static hub: ChatHub = new ChatHub();
 
   public static setup(config: ChatConfig) {
     this.type.set(config.type || 'multiple');
-    this.defaultChatTitle = config.defaultChatTitle || this.defaultChatTitle
+    this.defaultChatTitle = config.defaultChatTitle
     this.api.setup({
       host: config.host,
       apiAccessToken: config.apiAccessToken,
@@ -72,7 +76,7 @@ export class ChatSystem {
   }
 
   public static async createChat(title?: string) {
-    title ||= this.defaultChatTitle;
+    title ||= this.defaultChatTitle || `Chat On ${new Date().toLocaleString()}`;
     const newChat = { title: title };
     const result = await this.api.createChat(newChat);
     console.log(result.chatSession);

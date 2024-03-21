@@ -47,13 +47,16 @@ export class ChatHeader extends LitElement {
         ${this.openSlider 
           ? html`
             <chat-icon-button name="check-square" color="green"
+              tooltip="Save"
               @click=${this.updateChat}
             ></chat-icon-button>
             <chat-icon-button name="x-square" color="red"
+              tooltip="Cancel"
               @click=${() => this.openSlider = false}
             ></chat-icon-button>`
           : html`
             <chat-icon-button name="pencil-square"
+              tooltip="Edit"
               @click=${() => this.openSlider = true}
             ></chat-icon-button>`
         }

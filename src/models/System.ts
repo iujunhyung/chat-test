@@ -1,4 +1,6 @@
 export type SystemType = 'single' | 'multiple';
+export type SystemTheme = 'light' | 'dark';
+export type SystemScreen = 'small' | 'medium' | 'large';
 
 /**
  * Represents the configuration options for a chat system.
