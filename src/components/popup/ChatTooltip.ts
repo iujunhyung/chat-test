@@ -9,14 +9,15 @@ export class ChatTooltip extends LitElement {
   @state() open: boolean = false;
 
   @property({ type: String }) position: Position = 'bottom';
+  @property({ type: String }) distance: string = '10px';
   @property({ type: String }) content?: string;
 
   render() {
     return html`
       <chat-popup
-        position=${this.position}
         ?open=${this.open}
-        distance="10px"
+        position=${this.position}
+        distance=${this.distance}
       >
         <slot
           @mouseenter=${() => this.open = true}
@@ -38,9 +39,10 @@ export class ChatTooltip extends LitElement {
   
   static styles = css`
     :host {
-      display: inline-flex;
       position: relative;
+      display: inline-flex;
     }
+
     .tooltip {
       background:  rgba(51,51,51,.9);
       color: #fff;
@@ -48,6 +50,7 @@ export class ChatTooltip extends LitElement {
       border-radius: 5px;
       font-size: 14px;
       line-height: 18px;
+      white-space: nowrap;
     }
   `;
 }

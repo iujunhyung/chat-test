@@ -121,7 +121,7 @@ export class ChatSender extends LitElement {
 
     .status {
       position: absolute;
-      top: -40px;
+      top: -30px;
       left: 0px;
     }
 

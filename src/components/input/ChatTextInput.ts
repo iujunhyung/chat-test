@@ -1,10 +1,10 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-@customElement('chat-textarea')
-export class ChatTextarea extends LitElement {
+@customElement('chat-text-input')
+export class ChatTextInput extends LitElement {
 
-  @query('textarea') input!: HTMLTextAreaElement;
+  @query('input') input!: HTMLInputElement;
 
   @property({ type: Boolean, reflect: true }) invalid: boolean = false;
   @property({ type: String }) error?: string;
@@ -17,7 +17,7 @@ export class ChatTextarea extends LitElement {
   @property({ type: Object }) context?: any;
   @property({ type: String }) path?: string;
   @property({ type: String }) value?: string;
-  
+
   protected updated(changedProperties: any) {
     if (changedProperties.has('context') && this.context && this.path) {
       this.value = this.context[this.path];
@@ -31,14 +31,15 @@ export class ChatTextarea extends LitElement {
         .label=${this.label}
         .description=${this.description}
         ?required=${this.required}
-        .error=${'error'}
+        .error=${this.error}
       >
-        <textarea
+        <input
+          type="text"
           ?required=${this.required}
           .value=${this.value || ''}
           .placeholder=${this.placeholder || ''}
           @input=${this.handleInput}
-        ></textarea>
+        />
       </input-container>
     `;
   }
@@ -59,16 +60,15 @@ export class ChatTextarea extends LitElement {
   static styles = css`
     :host {
       position: relative;
-      width: 100%;
+      display: block;
     }
-    :host([invalid]) textarea {
+    :host([invalid]) input {
       border: 2px solid red;
     }
-    textarea {
+
+    input {
       width: 100%;
-      height: 100px;
       padding: 5px 10px;
-      resize: none;
       outline: none;
       font-size: 14px;
       line-height: 18px;
@@ -76,18 +76,8 @@ export class ChatTextarea extends LitElement {
       border: 2px solid var(--sl-color-neutral-300);
       border-radius: 5px;
     }
-    textarea:focus {
+    input:focus {
       border: 2px solid var(--sl-color-primary-500);
-    }
-    textarea::-webkit-scrollbar {
-      width: 5px;
-    }
-    textarea::-webkit-scrollbar-thumb {
-      background-color: var(--sl-color-neutral-600);
-      border-radius: 5px;
-    }
-    textarea::-webkit-scrollbar-track {
-      background-color: transparent;
     }
   `;
 }

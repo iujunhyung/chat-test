@@ -5,8 +5,8 @@ import { autorun } from "mobx";
 import type { IChatSession } from "../../models/Chat";
 import { ChatSystem, ChatStore } from "../../system";
 
-@customElement('chat-side-bar')
-export class ChatSideBar extends LitElement {
+@customElement('chat-sidebar')
+export class ChatSidebar extends LitElement {
 
   @query('.toggler') toggler!: HTMLDivElement;
 
@@ -37,7 +37,7 @@ export class ChatSideBar extends LitElement {
       <div class="header">
         <div class="control">
           <chat-icon-button class="toggler" name="list"
-            @click=${() => ChatSystem.openSideBar.set(false)}
+            @click=${() => ChatSystem.openSidebar.set(false)}
           ></chat-icon-button>
           <span class="title">${this.label}</span>
           <div class="flex"></div>
@@ -64,11 +64,11 @@ export class ChatSideBar extends LitElement {
 
       <!-- Side Bar Setting Button -->
       <div class="footer">
-        <chat-button @click=${() => ChatSystem.toggleTheme()}>
+        <chat-side-button @click=${() => ChatSystem.toggleTheme()}>
           <chat-icon slot="prefix" name="gear"></chat-icon>
           <chat-icon slot="suffix" name="export"></chat-icon>
-          Global Setting
-        </chat-button>
+          System Setting
+        </chat-side-button>
       </div>
     `;
   }
@@ -92,7 +92,7 @@ export class ChatSideBar extends LitElement {
         <chat-section-item
           ?selected=${selected}
           .item=${item}
-          @select=${() => ChatSystem.openSideBar.set(false)}
+          @select=${() => ChatSystem.openSidebar.set(false)}
         ></chat-section-item>
       `;
     });
@@ -159,15 +159,13 @@ export class ChatSideBar extends LitElement {
       height: 100%;
       display: flex;
       flex-direction: column;
+      box-sizing: border-box;
       background-color: var(--sl-color-gray-50);
 
       --header-height: 90px;
-      --footer-height: 40px;
+      --footer-height: 60px;
       --header-padding: 12px;
-      /* --footer-padding: 12px; */
-
-      box-sizing: border-box;
-      border: 1px solid black;
+      --footer-padding: 12px;
     }
 
     .header {
@@ -179,8 +177,6 @@ export class ChatSideBar extends LitElement {
       gap: 10px;
       box-sizing: border-box;
       padding: var(--header-padding);
-
-      border: 1px solid black;
 
       .control {
         display: flex;
@@ -231,8 +227,6 @@ export class ChatSideBar extends LitElement {
       gap: 10px;
       overflow-y: auto;
       box-sizing: border-box;
-
-      border: 1px solid black;
     }
     .body::-webkit-scrollbar {
       width: 0px;
@@ -245,9 +239,8 @@ export class ChatSideBar extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: var(--footer-padding);
       box-sizing: border-box;
-
-      border: 1px solid black;
     }
   `;
 }

@@ -21,7 +21,7 @@ export class MultipleChat extends LitElement {
       this.adjustPanelPosition();
     });
     autorun(() => {
-      const open = ChatSystem.openSideBar.get();
+      const open = ChatSystem.openSidebar.get();
       this.togglePanel(open);
     });
   }
@@ -30,7 +30,7 @@ export class MultipleChat extends LitElement {
     return html`
       <!-- Chat Session List Side Bar -->
       <div class="panel">
-        <chat-side-bar></chat-side-bar>
+        <chat-sidebar></chat-sidebar>
       </div>
 
       <!-- Current Main Chat Room -->
@@ -44,7 +44,7 @@ export class MultipleChat extends LitElement {
 
       <!-- Side Bar overlay in small size -->
       <div class="overlay" 
-        @click=${() => ChatSystem.openSideBar.set(false)}
+        @click=${() => ChatSystem.openSidebar.set(false)}
       ></div>
     `;
   }
@@ -53,7 +53,7 @@ export class MultipleChat extends LitElement {
     if(this.screen !== 'small') return nothing;
     return html`
       <chat-icon-button class="toggler" slot="prefix" name="list"
-        @click=${() => ChatSystem.openSideBar.set(true)}
+        @click=${() => ChatSystem.openSidebar.set(true)}
       ></chat-icon-button>
     `;
   }
@@ -130,7 +130,6 @@ export class MultipleChat extends LitElement {
       .header {
         position: relative;
         height: var(--header-height);
-        border: 1px solid black;
       }
 
       chat-room {

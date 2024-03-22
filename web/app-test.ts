@@ -18,10 +18,12 @@ export class AppTest extends LitElement {
           <h1>Chat Room</h1>
         </div>
         <div style="width: 800px;" class="resize"> -->
+
           <llm-chat
-            type="single"
+            type="multiple"
             .host=${host}
           ></llm-chat>
+          
         <!-- </div>
       </div> -->
     `;

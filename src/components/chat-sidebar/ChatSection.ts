@@ -20,8 +20,6 @@ export class ChatSection extends LitElement {
       gap: 5px;
       box-sizing: border-box;
       padding: 12px;
-      
-      border: 1px solid black;
     }
 
     label {

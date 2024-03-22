@@ -69,9 +69,7 @@ export class ChatRoom extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
-      
       box-sizing: border-box;
-      border: 1px solid black;
 
       --column-width: 768px;
       --side-padding: 20px;
@@ -88,17 +86,19 @@ export class ChatRoom extends LitElement {
       overflow-y: auto;
       box-sizing: border-box;
       padding: 30px var(--side-padding);
-
-      border: 1px solid black;
+    }
+    .output::-webkit-scrollbar {
+      width: 0px;
     }
 
     .input {
       position: relative;
       width: var(--column-width);
       box-sizing: border-box;
-      padding: 10px var(--side-padding);
-
-      border: 1px solid black;
+      padding-top: 0px;
+      padding-bottom: 20px;
+      padding-left: var(--side-padding);
+      padding-right: var(--side-padding);
     }
   `;
 }

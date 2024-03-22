@@ -2,18 +2,15 @@ import { LitElement, css, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { autorun } from "mobx";
 
-import { ChatSystem, ChatStore } from "../../system";
+import { ChatStore } from "../../system";
 
 @customElement('chat-header')
 export class ChatHeader extends LitElement {
 
-  @query('.slider') slider!: HTMLDivElement;
-  @query('.title') titleEl!: HTMLSpanElement;
+  @query('.edit') edit!: any;
+  @query('.panel') panel!: HTMLElement;
 
-  @state() openSlider: boolean = true;
   @state() label: string = "Chat Room";
-  @state() description?: string;
-  @state() memoryBalance?: number;
 
   protected async firstUpdated(changedProperties: any) {
     super.firstUpdated(changedProperties);
@@ -21,18 +18,7 @@ export class ChatHeader extends LitElement {
 
     autorun(() => {
       this.label = ChatStore.title.get();
-      this.description = ChatStore.description.get();
-      this.memoryBalance = ChatStore.memoryBalance.get();
     });
-  }
-
-  protected async updated(changedProperties: any) {
-    super.updated(changedProperties);
-    await this.updateComplete;
-
-    if (changedProperties.has('openSlider')) {
-      this.toggleSlider();
-    }
   }
 
   render() {
@@ -41,59 +27,30 @@ export class ChatHeader extends LitElement {
         <slot name="prefix"></slot>
       </div>
       <div class="center">
-        <div class="title"
-          
-        >${this.label}</div>
-        ${this.openSlider 
-          ? html`
-            <chat-icon-button name="check-square" color="green"
-              tooltip="Save"
-              @click=${this.updateChat}
-            ></chat-icon-button>
-            <chat-icon-button name="x-square" color="red"
-              tooltip="Cancel"
-              @click=${() => this.openSlider = false}
-            ></chat-icon-button>`
-          : html`
-            <chat-icon-button name="pencil-square"
-              tooltip="Edit"
-              @click=${() => this.openSlider = true}
-            ></chat-icon-button>`
-        }
+        <div class="title">${this.label}</div>
+        <chat-icon-button class="edit"
+          name="pencil-square" tooltip="Edit"
+          @click=${() => this.panel.toggleAttribute('open')}
+        ></chat-icon-button>
       </div>
       <div class="suffix">
         <slot name="suffix"></slot>
       </div>
-      <div class="slider">
-        <div class="form">
-          <chat-textarea
-            label="System Description"
-            .value=${this.description || ""}
-          ></chat-textarea>
-          <chat-range
-            label="Memory Balance"
-            .value=${this.memoryBalance || 0.5}
-            required
-          ></chat-range>
-        </div>
-      </div>
+      <chat-edit-panel class="panel"
+        @saved=${this.handleSaved}
+      ></chat-edit-panel>
     `;
   }
 
-  private async toggleSlider() {
-    if (this.openSlider) {
-      this.slider.classList.add('open');
-      this.titleEl.contentEditable = "true";
-      this.titleEl.focus();
-    } else {
-      this.slider.classList.remove('open');
-      this.titleEl.contentEditable = "false";
-    }
-  }
-
-  private async updateChat() {
-    return;
-    await ChatSystem.editChat();
+  private handleSaved() {
+    this.edit.name = "check";
+    this.edit.color = "green";
+    this.edit.cursor = "default";
+    setTimeout(() => {
+      this.edit.name = "pencil-square";
+      this.edit.color = "";
+      this.edit.cursor = "pointer";
+    }, 1000);
   }
 
   static styles = css`
@@ -128,45 +85,11 @@ export class ChatHeader extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        outline: none;
-      }
-      .title[contenteditable="true"] {
-        border-bottom: 1px solid var(--sl-color-gray-500);
       }
     }
 
     .suffix {
       display: block;
-    }
-
-    .slider {
-      position: absolute;
-      display: flex;
-      justify-content: center;
-      z-index: 1;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      height: 0px;
-      box-sizing: border-box;
-      background-color: var(--sl-color-neutral-0);
-      border-bottom: 1px solid var(--sl-color-gray-200);
-      transition: height 0.3s ease-in-out;
-      overflow: hidden;
-
-      .form {
-        width: 768px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 10px 50px;
-        box-sizing: border-box;
-      }
-    }
-    .slider.open {
-      height: 300px;
-      overflow-y: auto;
     }
     
   `;

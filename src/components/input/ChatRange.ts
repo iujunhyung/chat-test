@@ -9,16 +9,29 @@ export class ChatRange extends LitElement {
 
   @state() left?: string;
   @state() right?: string;
-  @state() error?: string;
 
   @property({ type: Boolean }) invalid: boolean = false;
+  @property({ type: String }) error?: string;
+
   @property({ type: String }) label?: string;
   @property({ type: String }) description?: string;
-  @property({ type: Boolean }) required: boolean = false;
   @property({ type: Number }) min: number = 0;
   @property({ type: Number }) max: number = 1;
   @property({ type: Number }) step: number = 0.01;
+
+  @property({ type: Object }) context?: any;
+  @property({ type: String }) path?: string;
   @property({ type: Number }) value?: number;
+
+  protected updated(changedProperties: any) {
+    if (changedProperties.has('context') && this.context && this.path) {
+      this.value = this.context[this.path];
+    }
+    if (changedProperties.has('value') && this.value) {
+      this.left = Math.round(this.value / this.max * 100) + '%';
+      this.right = Math.round((1 - this.value / this.max) * 100) + '%';
+    }
+  }
 
   render() {
     return html`
@@ -26,23 +39,18 @@ export class ChatRange extends LitElement {
         ?invalid=${this.invalid}
         .label=${this.label}
         .description=${this.description}
-        ?required=${this.required}
         .error=${'error'}
       >
         <div class="container">
           <div class="left">${this.left}</div>
           <input type="range"
             @input=${this.handleInput}
-            @mousedown=${this.openTooltip}
-            @mouseup=${this.closeTooltip}
-            ?required=${this.required}
             min=${this.min}
             max=${this.max}
             step=${this.step}
             value=${this.value || this.min}
           />
           <div class="right">${this.right}</div>
-          <div class="tooltip">${this.value}</div>
         </div>
       </input-container>
     `;
@@ -51,17 +59,9 @@ export class ChatRange extends LitElement {
   private handleInput = () => {
     const value = this.input.value;
     this.value = parseFloat(value);
-
-    this.left = this.value / this.max * 100 + '%';
-    this.right = (1 - this.value / this.max) * 100 + '%';
-  }
-
-  private openTooltip = () => {
-    this.tooltip.style.display = 'block';
-  }
-
-  private closeTooltip = () => {
-    this.tooltip.style.display = 'none';
+    if(this.context && this.path) {
+      this.context[this.path] = this.value;
+    }
   }
 
   public async validate() {
@@ -98,19 +98,6 @@ export class ChatRange extends LitElement {
     }
     input::-webkit-slider-thumb {
       background-color: red;
-    }
-
-    .tooltip {
-      display: none;
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #000;
-      color: #fff;
-      padding: 5px;
-      border-radius: 5px;
-      display: none;
     }
   `;
 }

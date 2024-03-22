@@ -1,23 +1,21 @@
 import { LitElement, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 @customElement('chat-copy-button')
 export class ChatCopyButton extends LitElement {
   
-  @state() icon: 'copy' | 'check' = 'copy';
-
+  @property({ type: Boolean, reflect: true }) isCopied: boolean = false;
   @property({ type: String }) value?: string;
   @property({ type: Number }) size: number = 14;
 
   render() {
     return html`
       <chat-tooltip position="right-bottom" 
-        content=${this.icon === 'check' ? 'Copied!' : 'Copy to Clipboard'}
+        content=${this.isCopied ? 'Copied!' : 'Copy to Clipboard'}
       >
         <chat-icon
-          .name=${this.icon}
+          .name=${this.isCopied ? 'check' : 'copy'}
           .size=${this.size}
-          .color=${this.icon === 'check' ? 'green' : undefined}
           @click=${this.copyToClipboard}
         ></chat-icon>
       </chat-tooltip>
@@ -25,13 +23,11 @@ export class ChatCopyButton extends LitElement {
   }
 
   private async copyToClipboard() {
-    if (this.icon === 'check' || !this.value) return;
-    this.style.cursor = 'default';
+    if (this.isCopied || !this.value) return;
     await navigator.clipboard.writeText(this.value);
-    this.icon = 'check';
+    this.isCopied = true;
     setTimeout(() => {
-      this.icon = 'copy'
-      this.style.cursor = 'pointer';
+      this.isCopied = false;
     }, 1_500);
   }
   
@@ -39,6 +35,12 @@ export class ChatCopyButton extends LitElement {
     :host {
       position: relative;
       display: inline-flex;
+    }
+    :host([isCopied]) chat-icon {
+      cursor: default;
+      color: green;
+    }
+    chat-icon {
       cursor: pointer;
     }
   `;

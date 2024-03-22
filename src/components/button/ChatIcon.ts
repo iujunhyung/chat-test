@@ -7,7 +7,6 @@ import { Icon } from '../../static/Icon';
 export class ChatIcon extends LitElement {
   
   @property({ type: String }) name: string = '';
-  @property({ type: String }) color?: string;
   @property({ type: Number }) size?: number;
   @property({ type: String }) viewBox?: string;
 
@@ -23,8 +22,7 @@ export class ChatIcon extends LitElement {
   render() {
     const data = Icon[this.name] || 'question';
     return html`
-      <svg xmlns="http://www.w3.org/2000/svg" 
-        fill=${this.color || 'var(--sl-color-neutral-600)'}
+      <svg xmlns="http://www.w3.org/2000/svg"
         viewBox=${this.viewBox || '0 0 16 16'}>
         <path d=${data}></path>
       </svg>
@@ -42,6 +40,7 @@ export class ChatIcon extends LitElement {
       display: block;
       width: 1em;
       height: 1em;
+      fill: currentColor;
     }
   `;
 }

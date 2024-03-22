@@ -9,7 +9,6 @@ export class ChatIconButton extends LitElement {
   @property({ type: Boolean, reflect: true }) loading: boolean = false;
   @property({ type: String }) name: string = '';
   @property({ type: Number }) size: number = 18;
-  @property({ type: String }) color?: string;
   @property({ type: String }) tooltip?: string;
 
   render() {
@@ -41,9 +40,6 @@ export class ChatIconButton extends LitElement {
         <chat-icon
           .name=${this.name}
           .size=${this.size}
-          .color=${this.isHover ? '#4a90e2' : this.color}
-          @mouseenter=${() => this.isHover = true}
-          @mouseleave=${() => this.isHover = false}
         ></chat-icon>
       `;
     }
@@ -57,7 +53,15 @@ export class ChatIconButton extends LitElement {
       cursor: pointer;
     }
     :host([loading]) {
-      cursor: not-allowed;
+      pointer-events: none;
+      cursor: progress;
+    }
+    
+    chat-icon {
+      color: var(--sl-color-neutral-600);
+    }
+    chat-icon:hover {
+      color: #4a90e2;
     }
   `;
 }

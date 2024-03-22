@@ -18,7 +18,7 @@ export class ChatSystem {
   
   public static type: IObservableValue<SystemType> = observable.box<SystemType>('multiple');
   public static screen: IObservableValue<SystemScreen> = observable.box<SystemScreen>('large');
-  public static openSideBar: IObservableValue<boolean> = observable.box<boolean>(false);
+  public static openSidebar: IObservableValue<boolean> = observable.box<boolean>(false);
   public static theme: SystemTheme = 'light';
   public static defaultChatTitle?: string;
   public static api: ChatAPI = new ChatAPI();
@@ -119,7 +119,9 @@ export class ChatSystem {
       memoryBalance: chat?.memoryBalance || ChatStore.memoryBalance.get()
     };
     const result = await this.api.patchChat(id, editChat);
-    return result;
+    ChatStore.title.set(result.title);
+    ChatStore.description.set(result.systemDescription);
+    ChatStore.memoryBalance.set(result.memoryBalance);
   }
 
   public static async deleteChat(id: string) {
