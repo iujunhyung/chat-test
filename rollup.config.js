@@ -23,7 +23,9 @@ export default [
       /^lit*/,
       "@microsoft/signalr",
       "mobx",
-      "marked"
+      "marked",
+      "@lit/react",
+      "react",
     ],
     plugins: [
       resolve({

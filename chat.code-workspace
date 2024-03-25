@@ -5,7 +5,7 @@
       "path": "../../data/chat-copilot/webapp"
     },
     {
-      "name": "LLM-CHAT",
+      "name": "CHAT-COPILOT",
       "path": "."
     }
   ],

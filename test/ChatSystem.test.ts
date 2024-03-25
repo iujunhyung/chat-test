@@ -1,5 +1,8 @@
 import { ChatSystem } from '../src';
 
+/**
+ * 사용하지 않음...
+ */
 describe('ChatSystem', () => {
   beforeEach(() => {
     // Mock the necessary dependencies or setup test environment

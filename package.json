@@ -1,6 +1,6 @@
 {
-  "name": "@iyulab/llm-chat",
-  "description": "llm chat client",
+  "name": "@iyulab/chat-copilot",
+  "description": "chat copilot component for react and web components",
   "version": "0.0.1",
   "author": {
     "name": "iyulab",
@@ -18,10 +18,12 @@
     "clean": "rimraf dist types"
   },
   "dependencies": {
+    "@lit/react": "^1.0.4",
     "@microsoft/signalr": "^8.0.0",
     "lit": "^3.1.2",
     "marked": "^12.0.1",
-    "mobx": "^6.12.0"
+    "mobx": "^6.12.0",
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
